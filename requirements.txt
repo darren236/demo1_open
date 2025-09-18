@@ -1,0 +1,9 @@
+streamlit==1.32.0
+pandas==2.2.0
+plotly==5.19.0
+numpy==1.26.3
+pypdfium2==4.30.0
+py3Dmol==2.5.2
+stmol==0.0.9
+biopython==1.83
+requests==2.31.0
