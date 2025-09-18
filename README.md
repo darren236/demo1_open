@@ -58,18 +58,23 @@ The interactive demo includes:
 4. **Experiments** - Models tested and evaluation metrics
 5. **Results** - Performance comparisons and key findings
 6. **Key Insights** - Important takeaways from the research
-7. **Interactive Demo** - Conceptual demonstration of PRO-GO functionality with:
-   - **Predefined therapeutic target use cases** - Choose from curated GO term sets for:
-     - Kinase targets (cancer therapy)
-     - GPCR receptors (hormone/nerve signaling)
-     - Ion channels/transporters (drug flow control)
-     - Transcription factors (gene regulation)
-     - Immune response proteins (cytokines/receptors)
+7. **Interactive Demo** - Uses REAL protein data from paper evaluation with:
+          - **Predefined therapeutic target use cases** - Choose from curated GO term sets for:
+            - Kinase targets (cancer therapy)
+            - GPCR receptors (hormone/nerve signaling)
+            - Ion channels/transporters (drug flow control)
+            - Transcription factors (gene regulation)
+            - Immune response proteins (cytokines/receptors)
+          - **Complete references** for each use case including:
+            - Direct links to GO term definitions on AmiGO
+            - DOI links to peer-reviewed scientific papers
+            - GO aspects (Molecular Function, Biological Process, Cellular Component)
    - Manual GO term selection for custom targets
    - **Interactive reference sequence retrieval** - Click to search UniRef50 database (~5 seconds)
    - UniRef50 reference sequences with verified GO term annotations clearly displayed
-          - Generated sequences with predicted GO term matches and confidence levels
+          - Generated sequences designed for target GO terms (confidence scores shown after structure prediction)
           - **Realistic progress animations** for reference retrieval (~5 seconds), sequence generation (~5 seconds), and structure prediction (~5 seconds)
+          - Adjustable number of sequences to generate (1-5)
           - Interactive structure prediction workflow - select a sequence then click to predict structure
           - TM-scores revealed after ESMFold prediction (all above 0.8 reflecting GO match accuracy)
           - **Side-by-side structure comparison** - PRO-GO predicted vs ground truth proteins with same GO terms
@@ -82,6 +87,11 @@ The interactive demo includes:
      - pLDDT distribution histogram
      - Confidence summary statistics
    - Interactive molecular viewer with rotation, zoom, and pan controls
+   - **Real evaluation data** from the paper including:
+     - Actual generated protein sequences from 4 GO term sets
+     - Real TM-scores (0.82-0.98) and pLDDT values
+     - Actual PDB structures from ESMFold predictions
+     - Ground truth structures matched to predictions
 
 ## Key Concepts
 

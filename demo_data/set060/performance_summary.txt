@@ -1,0 +1,25 @@
+Performance Summary for set060
+========================================
+
+Top 5 sequences by TM score:
+
+1. Sequence_68
+   - Max TM Score: 0.9325
+   - Avg pLDDT: 54.81
+
+2. Sequence_78
+   - Max TM Score: 0.9275
+   - Avg pLDDT: 57.21
+
+3. Sequence_76
+   - Max TM Score: 0.9242
+   - Avg pLDDT: 49.17
+
+4. Sequence_34
+   - Max TM Score: 0.9240
+   - Avg pLDDT: 54.99
+
+5. Sequence_99
+   - Max TM Score: 0.9218
+   - Avg pLDDT: 54.30
+
