@@ -751,50 +751,6 @@ def show_interactive_demo():
                 go_ids = [id.strip() for id in selected_row['GO IDs'].split(';')]
                 go_names = [name.strip() for name in selected_row['GO Terms'].split(';')]
                 go_terms = [f"{id} - {name}" for id, name in zip(go_ids, go_names)]
-                
-                # Show use case description and references
-                with st.expander("ℹ️ About this use case"):
-                    st.write(selected_row['Use case'])
-                    
-                    # Show GO aspects if available
-                    if pd.notna(selected_row.get('Aspects (MF/BP/CC)', '')):
-                        aspects = [aspect.strip() for aspect in selected_row['Aspects (MF/BP/CC)'].split(';')]
-                        aspect_names = []
-                        for aspect in aspects:
-                            if aspect == 'MF':
-                                aspect_names.append("Molecular Function")
-                            elif aspect == 'BP':
-                                aspect_names.append("Biological Process")
-                            elif aspect == 'CC':
-                                aspect_names.append("Cellular Component")
-                            else:
-                                aspect_names.append(aspect)
-                        if any(a != '?' for a in aspects):
-                            st.caption(f"GO Aspects: {', '.join(aspect_names)}")
-                    
-                    # Add GO term references
-                    if pd.notna(selected_row.get('References', '')):
-                        st.markdown("---")
-                        st.markdown("📚 **GO Term References:**")
-                        ref_links = [ref.strip() for ref in selected_row['References'].split(';')]
-                        for i, (go_id, go_name, ref_link) in enumerate(zip(go_ids, go_names, ref_links)):
-                            st.markdown(f"• [{go_id}: {go_name}]({ref_link}) 🔗")
-                    
-                    # Add use case references (scientific papers)
-                    if pd.notna(selected_row.get('Use Case References', '')):
-                        st.markdown("---")
-                        st.markdown("📄 **Scientific Literature:**")
-                        paper_refs = [ref.strip() for ref in selected_row['Use Case References'].split(';')]
-                        for i, ref in enumerate(paper_refs):
-                            if ref.startswith('http'):
-                                # Extract DOI from URL if possible
-                                if 'doi.org/' in ref:
-                                    doi = ref.split('doi.org/')[-1]
-                                    st.markdown(f"• [DOI: {doi}]({ref}) - Peer-reviewed research paper")
-                                else:
-                                    st.markdown(f"• [Research Paper {i+1}]({ref})")
-                            else:
-                                st.markdown(f"• {ref}")
             else:
                 go_terms = []
             
@@ -840,6 +796,55 @@ def show_interactive_demo():
             # For more than 3 terms, use a more compact display
             for term in go_terms:
                 st.write(f"• {term}")
+        
+        # Show use case description and references (full width)
+        if use_case != "Select a use case..." and use_cases_df is not None:
+            # Get the selected use case details
+            selected_row = use_cases_df[use_cases_df['Set Name'] == use_case].iloc[0]
+            
+            # Show use case description and references with full width
+            with st.expander("ℹ️ About this use case", expanded=False):
+                st.write(selected_row['Use case'])
+                
+                # Show GO aspects if available
+                if pd.notna(selected_row.get('Aspects (MF/BP/CC)', '')):
+                    aspects = [aspect.strip() for aspect in selected_row['Aspects (MF/BP/CC)'].split(';')]
+                    aspect_names = []
+                    for aspect in aspects:
+                        if aspect == 'MF':
+                            aspect_names.append("Molecular Function")
+                        elif aspect == 'BP':
+                            aspect_names.append("Biological Process")
+                        elif aspect == 'CC':
+                            aspect_names.append("Cellular Component")
+                        else:
+                            aspect_names.append(aspect)
+                    if any(a != '?' for a in aspects):
+                        st.caption(f"GO Aspects: {', '.join(aspect_names)}")
+                
+                # Add GO term references
+                if pd.notna(selected_row.get('References', '')):
+                    st.markdown("---")
+                    st.markdown("📚 **GO Term References:**")
+                    ref_links = [ref.strip() for ref in selected_row['References'].split(';')]
+                    for i, (go_id, go_name, ref_link) in enumerate(zip(go_ids, go_names, ref_links)):
+                        st.markdown(f"• [{go_id}: {go_name}]({ref_link}) 🔗")
+                
+                # Add use case references (scientific papers)
+                if pd.notna(selected_row.get('Use Case References', '')):
+                    st.markdown("---")
+                    st.markdown("📄 **Scientific Literature:**")
+                    paper_refs = [ref.strip() for ref in selected_row['Use Case References'].split(';')]
+                    for i, ref in enumerate(paper_refs):
+                        if ref.startswith('http'):
+                            # Extract DOI from URL if possible
+                            if 'doi.org/' in ref:
+                                doi = ref.split('doi.org/')[-1]
+                                st.markdown(f"• [DOI: {doi}]({ref}) - Peer-reviewed research paper")
+                            else:
+                                st.markdown(f"• [Research Paper {i+1}]({ref})")
+                        else:
+                            st.markdown(f"• {ref}")
     
     # Show a message if no GO terms are selected
     if not go_terms:
@@ -1358,67 +1363,6 @@ def show_interactive_demo():
         if seq_key in st.session_state.structure_predicted:
             st.markdown("---")
             st.subheader("5. ESMFold Structure Prediction Results")
-            
-            # Show GO term confidence scores based on structural validation
-            st.markdown("**Structural validation confirms this sequence possesses all selected GO terms:**")
-            go_badges = []
-            for term in go_terms:
-                go_id = term.split(" - ")[0]
-                go_name = term.split(" - ")[1] if " - " in term else go_id
-                # Show confidence level based on TM-score
-                tm_score_percent = int(selected_seq_data['tm_score'] * 100)
-                if selected_seq_data['tm_score'] >= 0.9:
-                    badge_color = "#1B5E20"  # Dark forest green
-                    text_color = "#FFFFFF"  # White text for dark background
-                    confidence_text = f"{tm_score_percent}% - Excellent"
-                elif selected_seq_data['tm_score'] >= 0.85:
-                    badge_color = "#388E3C"  # Medium green
-                    text_color = "#FFFFFF"  # White text
-                    confidence_text = f"{tm_score_percent}% - Very Good"
-                else:
-                    badge_color = "#81C784"  # Light green
-                    text_color = "#1B5E20"  # Dark green text on light background
-                    confidence_text = f"{tm_score_percent}% - Good"
-                
-                go_badges.append(f'<span style="background-color: {badge_color}; color: {text_color}; border: 1px solid {badge_color}; padding: 4px 10px; border-radius: 12px; font-size: 0.85em; margin-right: 5px; margin-bottom: 3px; display: inline-block; font-weight: 600;">✓ {go_id}: {go_name} ({confidence_text})</span>')
-            
-            st.markdown(''.join(go_badges), unsafe_allow_html=True)
-            st.markdown("")  # Add spacing
-            
-            with st.expander("ℹ️ Why are confidence scores shown after structure prediction?"):
-                st.markdown("""
-                The confidence scores are based on **structural similarity** (TM-score), which can only be calculated after:
-                1. The sequence is folded into a 3D structure by ESMFold
-                2. The predicted structure is compared to known proteins with the same GO terms
-                
-                **Confidence levels:**
-                - 🟢 **90-100% (Excellent)**: Very high structural similarity - proteins likely have identical functions
-                - 🟢 **85-89% (Very Good)**: High structural similarity - proteins very likely share the same functions
-                - 🟢 **80-84% (Good)**: Good structural similarity - proteins likely share most functions
-                
-                All our generated sequences achieve TM-scores >0.8, indicating significant structural similarity to reference proteins.
-                """)
-            
-            # Show TM-score and GO match after prediction
-            col1, col2, col3, col4 = st.columns(4)
-            with col1:
-                tm_score = selected_seq_data['tm_score']
-                tm_delta = f"+{(tm_score - 0.8)*100:.1f}%" if tm_score > 0.8 else ""
-                st.metric("TM-Score", f"{tm_score:.3f}", tm_delta,
-                         help="Template Modeling score (0-1) measuring structural similarity to ground truth. >0.9 = Excellent match, >0.85 = Very good match, >0.8 = Good match.")
-            with col2:
-                st.metric("GO Match", f"{selected_seq_data['go_match']}%", 
-                         help="Overall confidence that this sequence possesses ALL selected GO terms based on structural similarity")
-            with col3:
-                # Use real pLDDT if available, otherwise mock
-                avg_plddt = selected_seq_data.get('avg_plddt', 85 + (st.session_state.selected_sequence_idx % 10))
-                st.metric("pLDDT Average", f"{avg_plddt:.1f}", 
-                         help="Average predicted Local Distance Difference Test score across all residues")
-            with col4:
-                # Calculate RMSD based on TM-score (approximate inverse relationship)
-                rmsd = 3.5 * (1 - tm_score) + 1.2  # Approximate RMSD from TM-score
-                st.metric("RMSD", f"{rmsd:.1f} Å", 
-                         help="Root Mean Square Deviation - measures how closely the predicted structure matches the ground truth (lower is better)")
         
             # Import additional libraries for PDB analysis
             import io
@@ -1640,6 +1584,68 @@ def show_interactive_demo():
                     </div>
                 </div>
                 """, unsafe_allow_html=True)
+            
+            # Show GO term confidence scores based on structural validation
+            st.markdown("---")
+            st.markdown("**Structural validation confirms this sequence possesses all selected GO terms:**")
+            go_badges = []
+            for term in go_terms:
+                go_id = term.split(" - ")[0]
+                go_name = term.split(" - ")[1] if " - " in term else go_id
+                # Show confidence level based on TM-score
+                tm_score_percent = int(selected_seq_data['tm_score'] * 100)
+                if selected_seq_data['tm_score'] >= 0.9:
+                    badge_color = "#1B5E20"  # Dark forest green
+                    text_color = "#FFFFFF"  # White text for dark background
+                    confidence_text = f"{tm_score_percent}% - Excellent"
+                elif selected_seq_data['tm_score'] >= 0.85:
+                    badge_color = "#388E3C"  # Medium green
+                    text_color = "#FFFFFF"  # White text
+                    confidence_text = f"{tm_score_percent}% - Very Good"
+                else:
+                    badge_color = "#81C784"  # Light green
+                    text_color = "#1B5E20"  # Dark green text on light background
+                    confidence_text = f"{tm_score_percent}% - Good"
+                
+                go_badges.append(f'<span style="background-color: {badge_color}; color: {text_color}; border: 1px solid {badge_color}; padding: 4px 10px; border-radius: 12px; font-size: 0.85em; margin-right: 5px; margin-bottom: 3px; display: inline-block; font-weight: 600;">✓ {go_id}: {go_name} ({confidence_text})</span>')
+            
+            st.markdown(''.join(go_badges), unsafe_allow_html=True)
+            st.markdown("")  # Add spacing
+            
+            with st.expander("ℹ️ Why are confidence scores shown after structure prediction?"):
+                st.markdown("""
+                The confidence scores are based on **structural similarity** (TM-score), which can only be calculated after:
+                1. The sequence is folded into a 3D structure by ESMFold
+                2. The predicted structure is compared to known proteins with the same GO terms
+                
+                **Confidence levels:**
+                - 🟢 **90-100% (Excellent)**: Very high structural similarity - proteins likely have identical functions
+                - 🟢 **85-89% (Very Good)**: High structural similarity - proteins very likely share the same functions
+                - 🟢 **80-84% (Good)**: Good structural similarity - proteins likely share most functions
+                
+                All our generated sequences achieve TM-scores >0.8, indicating significant structural similarity to reference proteins.
+                """)
+            
+            # Show TM-score and GO match after prediction
+            col1, col2, col3, col4 = st.columns(4)
+            with col1:
+                tm_score = selected_seq_data['tm_score']
+                tm_delta = f"+{(tm_score - 0.8)*100:.1f}%" if tm_score > 0.8 else ""
+                st.metric("TM-Score", f"{tm_score:.3f}", tm_delta,
+                         help="Template Modeling score (0-1) measuring structural similarity to ground truth. >0.9 = Excellent match, >0.85 = Very good match, >0.8 = Good match.")
+            with col2:
+                st.metric("GO Match", f"{selected_seq_data['go_match']}%", 
+                         help="Overall confidence that this sequence possesses ALL selected GO terms based on structural similarity")
+            with col3:
+                # Use real pLDDT if available, otherwise mock
+                avg_plddt = selected_seq_data.get('avg_plddt', 85 + (st.session_state.selected_sequence_idx % 10))
+                st.metric("pLDDT Average", f"{avg_plddt:.1f}", 
+                         help="Average predicted Local Distance Difference Test score across all residues")
+            with col4:
+                # Calculate RMSD based on TM-score (approximate inverse relationship)
+                rmsd = 3.5 * (1 - tm_score) + 1.2  # Approximate RMSD from TM-score
+                st.metric("RMSD", f"{rmsd:.1f} Å", 
+                         help="Root Mean Square Deviation - measures how closely the predicted structure matches the ground truth (lower is better)")
             
             # Parse pLDDT from B-factor and plot for predicted structure
             st.markdown("---")
