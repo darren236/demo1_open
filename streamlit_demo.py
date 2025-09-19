@@ -1585,6 +1585,27 @@ def show_interactive_demo():
                 </div>
                 """, unsafe_allow_html=True)
             
+            # First, parse the PDB to get the actual pLDDT values
+            parser = PDBParser(QUIET=True)
+            structure = parser.get_structure("pred", io.StringIO(predicted_pdb))
+            
+            plddt = []
+            res_ids = []
+            seen = set()
+            
+            # Extract pLDDT values using CA atoms
+            for model in structure:
+                for chain in model:
+                    for residue in chain:
+                        if ("CA" in residue) and (residue.get_id() not in seen):
+                            ca = residue["CA"]
+                            plddt.append(ca.get_bfactor())
+                            res_ids.append(f"{chain.id}:{residue.id[1]}")
+                            seen.add(residue.get_id())
+            
+            # Calculate the actual average pLDDT
+            actual_avg_plddt = np.mean(plddt) if plddt else 0.0
+            
             # Show GO term confidence scores based on structural validation
             st.markdown("---")
             st.markdown("**Structural validation confirms this sequence possesses all selected GO terms:**")
@@ -1637,9 +1658,8 @@ def show_interactive_demo():
                 st.metric("GO Match", f"{selected_seq_data['go_match']}%", 
                          help="Overall confidence that this sequence possesses ALL selected GO terms based on structural similarity")
             with col3:
-                # Use real pLDDT if available, otherwise mock
-                avg_plddt = selected_seq_data.get('avg_plddt', 85 + (st.session_state.selected_sequence_idx % 10))
-                st.metric("pLDDT Average", f"{avg_plddt:.1f}", 
+                # Use the actual calculated pLDDT average
+                st.metric("pLDDT Average", f"{actual_avg_plddt:.1f}", 
                          help="Average predicted Local Distance Difference Test score across all residues")
             with col4:
                 # Calculate RMSD based on TM-score (approximate inverse relationship)
@@ -1650,22 +1670,6 @@ def show_interactive_demo():
             # Parse pLDDT from B-factor and plot for predicted structure
             st.markdown("---")
             st.subheader("Per-residue pLDDT Analysis (Predicted Structure Only)")
-            parser = PDBParser(QUIET=True)
-            structure = parser.get_structure("pred", io.StringIO(predicted_pdb))
-            
-            plddt = []
-            res_ids = []
-            seen = set()
-            
-            # Extract pLDDT values using CA atoms
-            for model in structure:
-                for chain in model:
-                    for residue in chain:
-                        if ("CA" in residue) and (residue.get_id() not in seen):
-                            ca = residue["CA"]
-                            plddt.append(ca.get_bfactor())
-                            res_ids.append(f"{chain.id}:{residue.id[1]}")
-                            seen.add(residue.get_id())
             
             if plddt:
                 with st.expander("ℹ️ What is pLDDT?"):
@@ -1729,9 +1733,8 @@ def show_interactive_demo():
                     st.metric("High confidence", f"{high_count} ({high_count/total_count*100:.1f}%)", 
                              help=f"pLDDT ≥ {med_thr}")
                     
-                    # Average score
-                    avg_plddt = np.mean(plddt)
-                    st.metric(f"Average {y_label}", f"{avg_plddt:.1f}")
+                    # Average score (already calculated above)
+                    st.metric(f"Average {y_label}", f"{actual_avg_plddt:.1f}")
 
 if __name__ == "__main__":
         main()
