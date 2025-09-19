@@ -1091,8 +1091,6 @@ def show_interactive_demo():
             
             # Show results
             st.markdown("---")
-            st.markdown("**Generated sequences optimized for target GO terms:**")
-            st.caption("Note: In the full PRO-GO pipeline, structures for these sequences would be predicted using ESMFold for structural validation")
             
             # Load real generated sequences based on selected GO terms
             # Extract just the GO IDs from the selected terms
