@@ -1648,24 +1648,27 @@ def show_interactive_demo():
                 """)
             
             # Show TM-score and GO match after prediction
-            col1, col2, col3, col4 = st.columns(4)
+            col1, col2 = st.columns(2)
             with col1:
                 tm_score = selected_seq_data['tm_score']
                 tm_delta = f"+{(tm_score - 0.8)*100:.1f}%" if tm_score > 0.8 else ""
                 st.metric("TM-Score", f"{tm_score:.3f}", tm_delta,
-                         help="Template Modeling score (0-1) measuring structural similarity to ground truth. >0.9 = Excellent match, >0.85 = Very good match, >0.8 = Good match.")
+                         help="Template Modeling score (0-1) measuring structural similarity to ground truth. The arrow shows how much the score exceeds 0.8 (the minimum for 'good' match). >0.9 = Excellent, >0.85 = Very good, >0.8 = Good.")
             with col2:
                 st.metric("GO Match", f"{selected_seq_data['go_match']}%", 
                          help="Overall confidence that this sequence possesses ALL selected GO terms based on structural similarity")
-            with col3:
-                # Use the actual calculated pLDDT average
-                st.metric("pLDDT Average", f"{actual_avg_plddt:.1f}", 
-                         help="Average predicted Local Distance Difference Test score across all residues")
-            with col4:
-                # Calculate RMSD based on TM-score (approximate inverse relationship)
-                rmsd = 3.5 * (1 - tm_score) + 1.2  # Approximate RMSD from TM-score
-                st.metric("RMSD", f"{rmsd:.1f} Å", 
-                         help="Root Mean Square Deviation - measures how closely the predicted structure matches the ground truth (lower is better)")
+            
+            # Explain the arrow notation
+            with st.expander("ℹ️ What does the arrow and percentage mean?"):
+                st.markdown("""
+                The **green arrow ↑** and percentage under the TM-Score shows how much the score exceeds 0.8 (the minimum threshold for a "good" structural match).
+                
+                For example:
+                - TM-Score: 0.885 ↑ **+8.5%** means the score is 8.5% above the 0.8 threshold
+                - TM-Score: 0.920 ↑ **+12.0%** means the score is 12.0% above the 0.8 threshold
+                
+                This helps you quickly see not just that the structure is good, but *how much better* it is than the minimum requirement.
+                """)
             
             # Parse pLDDT from B-factor and plot for predicted structure
             st.markdown("---")
