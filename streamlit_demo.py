@@ -708,6 +708,8 @@ def show_interactive_demo():
         st.session_state.previous_go_terms = []
     if 'structure_predicted' not in st.session_state:
         st.session_state.structure_predicted = {}
+    if 'plddt_analyzed' not in st.session_state:
+        st.session_state.plddt_analyzed = {}
     
     st.header("Interactive Demo")
     st.info("This is a conceptual demo showing how PRO-GO would work in practice. You can either select from predefined therapeutic target use cases or choose individual GO terms. Hover over ℹ️ icons and options for more detailed explanations.")
@@ -860,6 +862,8 @@ def show_interactive_demo():
         st.session_state.selected_sequence_idx = None
         if 'structure_predicted' in st.session_state:
             st.session_state.structure_predicted = {}
+        if 'plddt_analyzed' in st.session_state:
+            st.session_state.plddt_analyzed = {}
     
     st.session_state.previous_go_terms = go_terms
     
@@ -1443,7 +1447,7 @@ def show_interactive_demo():
             with col2:
                 show_sidechains = st.checkbox("Sidechains (sticks)", False, key=f"sidechains_{seq_key}", help="If the backbone is the necklace string, sidechains are like unique charms hanging off each bead. Each of the 20 amino acids has a different sidechain - some are small, some large, some like water, some avoid it. These sidechains are what make proteins work: they're the 'hands' that grab onto other molecules, the 'keys' that fit into specific locks, and the parts that determine what each protein can do. Showing them helps you see the protein's functional parts.")
             with col3:
-                color_by_plddt = st.checkbox("Color by pLDDT/B-factor", True, key=f"plddt_{seq_key}", help="Colors the protein like a heat map. For predicted structures: Blue = high confidence ('we're very sure this part looks like this'), Red = low confidence ('we're less certain about this part'). For experimental structures: shows which parts are more flexible or move around more. Think of it like a weather map showing confidence in the forecast - blue areas are reliable, red areas are uncertain.")
+                color_by_plddt = st.checkbox("Color by pLDDT/B-factor", False, key=f"plddt_{seq_key}", help="Colors the protein like a heat map. For predicted structures: Blue = high confidence ('we're very sure this part looks like this'), Red = low confidence ('we're less certain about this part'). For experimental structures: shows which parts are more flexible or move around more. Think of it like a weather map showing confidence in the forecast - blue areas are reliable, red areas are uncertain.")
         
             # Fixed confidence thresholds for visualization
             low_thr = 50
@@ -1608,7 +1612,7 @@ def show_interactive_demo():
             
             # Show GO term confidence scores based on structural validation
             st.markdown("---")
-            st.markdown("**Structural validation confirms this sequence possesses all selected GO terms:**")
+            st.markdown("**Structural validation shows this sequence possesses the target GO terms properties:**")
             go_badges = []
             for term in go_terms:
                 go_id = term.split(" - ")[0]
@@ -1633,7 +1637,7 @@ def show_interactive_demo():
             st.markdown(''.join(go_badges), unsafe_allow_html=True)
             st.markdown("")  # Add spacing
             
-            with st.expander("ℹ️ Why are confidence scores shown after structure prediction?"):
+            with st.expander("What do the scores mean?"):
                 st.markdown("""
                 The confidence scores are based on **structural similarity** (TM-score), which can only be calculated after:
                 1. The sequence is folded into a 3D structure by ESMFold
@@ -1658,86 +1662,88 @@ def show_interactive_demo():
                 st.metric("GO Match", f"{selected_seq_data['go_match']}%", 
                          help="Overall confidence that this sequence possesses ALL selected GO terms based on structural similarity")
             
-            # Explain the arrow notation
-            with st.expander("ℹ️ What does the arrow and percentage mean?"):
-                st.markdown("""
-                The **green arrow ↑** and percentage under the TM-Score shows how much the score exceeds 0.8 (the minimum threshold for a "good" structural match).
-                
-                For example:
-                - TM-Score: 0.885 ↑ **+8.5%** means the score is 8.5% above the 0.8 threshold
-                - TM-Score: 0.920 ↑ **+12.0%** means the score is 12.0% above the 0.8 threshold
-                
-                This helps you quickly see not just that the structure is good, but *how much better* it is than the minimum requirement.
-                """)
-            
-            # Parse pLDDT from B-factor and plot for predicted structure
+            # pLDDT Analysis section with button
             st.markdown("---")
-            st.subheader("Per-residue pLDDT Analysis (Predicted Structure Only)")
             
-            if plddt:
-                with st.expander("ℹ️ What is pLDDT?"):
-                    st.markdown("""
-                    **pLDDT** is like a confidence score for each part of the predicted protein structure.
+            plddt_key = f"plddt_{seq_key}"
+            
+            # Button to generate pLDDT analysis
+            if plddt_key not in st.session_state.plddt_analyzed:
+                if st.button("🔬 Generate pLDDT Analysis", type="primary", use_container_width=True):
+                    with st.spinner("Analyzing per-residue confidence scores..."):
+                        import time
+                        time.sleep(2)  # Simulate processing
+                        st.session_state.plddt_analyzed[plddt_key] = True
+                        st.rerun()
+            
+            # Show pLDDT analysis if generated
+            if plddt_key in st.session_state.plddt_analyzed:
+                st.subheader("Per-residue pLDDT Analysis (Predicted Structure Only)")
+                
+                if plddt:
+                    with st.expander("ℹ️ What is pLDDT?"):
+                        st.markdown("""
+                        **pLDDT** is like a confidence score for each part of the predicted protein structure.
+                        
+                        Imagine if a weather forecast gave you confidence levels for each hour:
+                        - **Blue (90-100)**: "We're very confident" - like predicting sunny weather in the desert
+                        - **Green (70-90)**: "Pretty confident" - like a typical weather forecast
+                        - **Yellow (50-70)**: "Somewhat uncertain" - like predicting weather a week ahead
+                        - **Red (<50)**: "Very uncertain" - like predicting weather a month ahead
+                        
+                        Scientists use these colors to know which parts of the protein structure they can trust most.
+                        The computer is essentially saying "I'm very sure about the blue parts, but less sure about the red parts."
+                        """)
+                    y_label = "pLDDT"
+                    caption = "The plot shows confidence in the predicted structure for each residue position."
                     
-                    Imagine if a weather forecast gave you confidence levels for each hour:
-                    - **Blue (90-100)**: "We're very confident" - like predicting sunny weather in the desert
-                    - **Green (70-90)**: "Pretty confident" - like a typical weather forecast
-                    - **Yellow (50-70)**: "Somewhat uncertain" - like predicting weather a week ahead
-                    - **Red (<50)**: "Very uncertain" - like predicting weather a month ahead
+                    # Line plot
+                    fig = px.line(x=list(range(1, len(plddt) + 1)), y=plddt,
+                                  labels={"x": "Residue index", "y": y_label})
                     
-                    Scientists use these colors to know which parts of the protein structure they can trust most.
-                    The computer is essentially saying "I'm very sure about the blue parts, but less sure about the red parts."
-                    """)
-                y_label = "pLDDT"
-                caption = "The plot shows confidence in the predicted structure for each residue position."
-                
-                # Line plot
-                fig = px.line(x=list(range(1, len(plddt) + 1)), y=plddt,
-                              labels={"x": "Residue index", "y": y_label})
-                
-                # Add threshold bands
-                fig.add_hrect(y0=0, y1=low_thr, line_width=0, fillcolor="red", opacity=0.08)
-                fig.add_hrect(y0=low_thr, y1=med_thr, line_width=0, fillcolor="yellow", opacity=0.08)
-                fig.add_hrect(y0=med_thr, y1=100, line_width=0, fillcolor="blue", opacity=0.06)
-                
-                fig.update_layout(
-                    title=f"Per-residue {y_label} scores",
-                    height=400
-                )
-                
-                st.plotly_chart(fig, use_container_width=True)
-                
-                st.caption(caption)
-                
-                # Histogram of pLDDT
-                col1, col2 = st.columns(2)
-                
-                with col1:
-                    st.subheader(f"{y_label} Distribution")
-                    hist_fig = px.histogram(x=plddt, nbins=20, 
-                                           labels={"x": y_label, "count": "Number of residues"},
-                                           title=f"Distribution of {y_label} scores")
-                    hist_fig.update_layout(height=350)
-                    st.plotly_chart(hist_fig, use_container_width=True)
-                
-                with col2:
-                    st.subheader("Confidence Summary")
+                    # Add threshold bands
+                    fig.add_hrect(y0=0, y1=low_thr, line_width=0, fillcolor="red", opacity=0.08)
+                    fig.add_hrect(y0=low_thr, y1=med_thr, line_width=0, fillcolor="yellow", opacity=0.08)
+                    fig.add_hrect(y0=med_thr, y1=100, line_width=0, fillcolor="blue", opacity=0.06)
                     
-                    low_count = sum(v < low_thr for v in plddt)
-                    med_count = sum((v >= low_thr) and (v < med_thr) for v in plddt)
-                    high_count = sum(v >= med_thr for v in plddt)
-                    total_count = len(plddt)
+                    fig.update_layout(
+                        title=f"Per-residue {y_label} scores",
+                        height=400
+                    )
                     
-                    # Create metrics
-                    st.metric("Low confidence", f"{low_count} ({low_count/total_count*100:.1f}%)", 
-                             help=f"pLDDT < {low_thr}")
-                    st.metric("Medium confidence", f"{med_count} ({med_count/total_count*100:.1f}%)", 
-                             help=f"{low_thr} ≤ pLDDT < {med_thr}")
-                    st.metric("High confidence", f"{high_count} ({high_count/total_count*100:.1f}%)", 
-                             help=f"pLDDT ≥ {med_thr}")
+                    st.plotly_chart(fig, use_container_width=True)
                     
-                    # Average score (already calculated above)
-                    st.metric(f"Average {y_label}", f"{actual_avg_plddt:.1f}")
+                    st.caption(caption)
+                    
+                    # Histogram of pLDDT
+                    col1, col2 = st.columns(2)
+                    
+                    with col1:
+                        st.subheader(f"{y_label} Distribution")
+                        hist_fig = px.histogram(x=plddt, nbins=20, 
+                                               labels={"x": y_label, "count": "Number of residues"},
+                                               title=f"Distribution of {y_label} scores")
+                        hist_fig.update_layout(height=350)
+                        st.plotly_chart(hist_fig, use_container_width=True)
+                    
+                    with col2:
+                        st.subheader("Confidence Summary")
+                        
+                        low_count = sum(v < low_thr for v in plddt)
+                        med_count = sum((v >= low_thr) and (v < med_thr) for v in plddt)
+                        high_count = sum(v >= med_thr for v in plddt)
+                        total_count = len(plddt)
+                        
+                        # Create metrics
+                        st.metric("Low confidence", f"{low_count} ({low_count/total_count*100:.1f}%)", 
+                                 help=f"pLDDT < {low_thr}")
+                        st.metric("Medium confidence", f"{med_count} ({med_count/total_count*100:.1f}%)", 
+                                 help=f"{low_thr} ≤ pLDDT < {med_thr}")
+                        st.metric("High confidence", f"{high_count} ({high_count/total_count*100:.1f}%)", 
+                                 help=f"pLDDT ≥ {med_thr}")
+                        
+                        # Average score (already calculated above)
+                        st.metric(f"Average {y_label}", f"{actual_avg_plddt:.1f}")
 
 if __name__ == "__main__":
         main()
