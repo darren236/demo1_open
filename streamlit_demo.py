@@ -14,6 +14,7 @@ from stmol import showmol
 import re
 import io
 import numpy as np
+from PIL import Image
 
 # Configure page
 st.set_page_config(
@@ -26,6 +27,44 @@ st.set_page_config(
 # Custom CSS for better styling
 st.markdown("""
 <style>
+    /* Add padding to main content area */
+    .main .block-container {
+        padding-top: 3rem;
+        padding-bottom: 10rem;
+        max-width: 1200px;
+    }
+    
+    /* Add more spacing between sections */
+    .stMarkdown {
+        margin-bottom: 1rem;
+    }
+    
+    /* Add spacing after interactive elements */
+    .stButton > button {
+        margin-bottom: 2rem;
+    }
+    
+    .stRadio > div {
+        margin-bottom: 1.5rem;
+    }
+    
+    .stSelectbox > div {
+        margin-bottom: 1.5rem;
+    }
+    
+    .stMultiSelect > div {
+        margin-bottom: 1.5rem;
+    }
+    
+    .stSlider > div {
+        margin-bottom: 1.5rem;
+    }
+    
+    /* Ensure expanders have space */
+    .streamlit-expanderHeader {
+        margin-bottom: 0.5rem;
+    }
+    
     .main-header {
         font-size: 3rem;
         color: #1E88E5;
@@ -452,7 +491,7 @@ def read_performance_summary(performance_file):
 def get_structure_mapping(set_name):
     """Get the predicted to ground truth structure mapping."""
     mapping = {
-        'set005': [
+        'set005': [  # Preventing Runaway Cell Division (using set005 data)
             {'predicted': 'set005_predicted_1.pdb', 'ground_truth': '9BI4.pdb', 'tm_score': 0.8417},
             {'predicted': 'set005_predicted_2.pdb', 'ground_truth': '8XVT.pdb', 'tm_score': 0.8326},
             {'predicted': 'set005_predicted_3.pdb', 'ground_truth': '8XVT.pdb', 'tm_score': 0.8318},
@@ -486,10 +525,11 @@ def get_structure_mapping(set_name):
 def get_go_to_set_mapping():
     """Map GO term sets to demo data folder names."""
     return {
-        'GO:0000723; GO:0005524; GO:0006281': 'set005',  # Preventing Runaway Cell Division
-        'GO:0003968; GO:0006351; GO:0033644': 'set060',  # Controlling Drug and Ion Flow
-        'GO:0004672; GO:0006468; GO:0016020': 'set076',  # Targeting Uncontrolled Cell Growth
-        'GO:0008610; GO:0017000; GO:0031177': 'set088'   # Rebalancing Cellular Energy
+        'GO:0005634; GO:0006281; GO:0006325': 'set005',  # Preventing Runaway Cell Division
+        'GO:0003968; GO:0006351; GO:0033644': 'set060',  # Managing Overactive Immune Responses (Cytokines & Receptors)
+        'GO:0004672; GO:0006468; GO:0016020': 'set076',  # Targeting Uncontrolled Cell Growth (Kinase signaling)
+        'GO:0006508; GO:0039694': 'set086',              # Blocking Pathogen Survival Pathways
+        'GO:0008610; GO:0017000; GO:0031177': 'set088'   # Rebalancing Cellular Energy and Metabolism
     }
 
 def load_real_pdb_content(pdb_path):
@@ -712,7 +752,14 @@ def show_interactive_demo():
         st.session_state.plddt_analyzed = {}
     
     st.header("Interactive Demo")
-    st.info("This is a conceptual demo showing how PRO-GO would work in practice. You can either select from predefined therapeutic target use cases or choose individual GO terms. Hover over ℹ️ icons and options for more detailed explanations.")
+    st.info("This is a conceptual demo showing how PRO-GO would work in practice. You can either select from example therapeutic target use cases or choose individual GO terms. Hover over ℹ️ icons and options for more detailed explanations.")
+    
+    # Display overview image
+    try:
+        overview_img = Image.open('/mnt/Code/demo_data/img/overview.png')
+        st.image(overview_img, caption="PRO-GO Framework Overview", use_container_width=True)
+    except:
+        st.warning("Overview image not found. Please ensure 'overview.png' is in the demo_data/img directory.")
     
     # Input section
     st.subheader("1. Specify Target Properties")
@@ -720,7 +767,7 @@ def show_interactive_demo():
     # Load predefined GO term sets
     import pandas as pd
     try:
-        use_cases_df = pd.read_csv('/mnt/Code/go_term_sets_usecase.csv')
+        use_cases_df = pd.read_csv('/mnt/Code/demo_data/five_high_value_go_sets_with_benefits_column.csv')
         use_cases_df = use_cases_df.dropna(subset=['Set Name'])  # Remove empty rows
     except:
         use_cases_df = None
@@ -728,20 +775,20 @@ def show_interactive_demo():
     # Selection method
     selection_method = st.radio(
         "How would you like to select GO terms?",
-        ["Choose from predefined use cases", "Select individual GO terms"],
-        help="Predefined use cases are curated sets of GO terms for common drug targets"
+        ["Choose from example use cases", "Select individual GO terms"],
+        help="Example use cases are curated sets of GO terms for possible drug targets"
     )
     
     col1, col2 = st.columns(2)
     
     with col1:
-        if selection_method == "Choose from predefined use cases" and use_cases_df is not None:
+        if selection_method == "Choose from example use cases" and use_cases_df is not None:
             # Predefined use case selection
             use_case_options = ["Select a use case..."] + use_cases_df['Set Name'].tolist()
             use_case = st.selectbox(
-                "Select a use case:",
+                "Select a use case (Conceptual):",
                 use_case_options,
-                help="These are common therapeutic targets with curated GO term sets"
+                help="These are possible therapeutic targets with curated GO term sets (conceptual)"
             )
             
             # Only process if a valid use case is selected
@@ -778,7 +825,18 @@ def show_interactive_demo():
                     "GO:0006357 - Regulation of transcription by RNA polymerase II",
                     "GO:0006955 - Immune response",
                     "GO:0005125 - Cytokine activity",
-                    "GO:0005102 - Receptor binding"
+                    "GO:0005102 - Receptor binding",
+                    "GO:0005634 - Nucleus",
+                    "GO:0006281 - DNA repair",
+                    "GO:0006325 - Chromatin organization",
+                    "GO:0003968 - RNA-directed RNA polymerase activity",
+                    "GO:0006351 - DNA-templated transcription",
+                    "GO:0033644 - Host cell membrane",
+                    "GO:0006508 - Proteolysis",
+                    "GO:0039694 - Viral RNA genome replication",
+                    "GO:0008610 - Lipid biosynthetic process",
+                    "GO:0017000 - Antibiotic biosynthetic process",
+                    "GO:0031177 - Phosphopantetheine binding"
                 ]
             )
     
@@ -787,7 +845,7 @@ def show_interactive_demo():
         pass
     
     # Show selected GO terms summary
-    if go_terms and selection_method == "Choose from predefined use cases":
+    if go_terms and selection_method == "Choose from example use cases":
         st.markdown("**Selected GO Terms:**")
         if len(go_terms) <= 3:
             go_term_cols = st.columns(len(go_terms))
@@ -804,53 +862,39 @@ def show_interactive_demo():
             # Get the selected use case details
             selected_row = use_cases_df[use_cases_df['Set Name'] == use_case].iloc[0]
             
-            # Show use case description and references with full width
+            # Show use case description and expanded information
             with st.expander("ℹ️ About this use case", expanded=False):
+                # Main use case description
                 st.write(selected_row['Use case'])
                 
-                # Show GO aspects if available
-                if pd.notna(selected_row.get('Aspects (MF/BP/CC)', '')):
-                    aspects = [aspect.strip() for aspect in selected_row['Aspects (MF/BP/CC)'].split(';')]
-                    aspect_names = []
-                    for aspect in aspects:
-                        if aspect == 'MF':
-                            aspect_names.append("Molecular Function")
-                        elif aspect == 'BP':
-                            aspect_names.append("Biological Process")
-                        elif aspect == 'CC':
-                            aspect_names.append("Cellular Component")
-                        else:
-                            aspect_names.append(aspect)
-                    if any(a != '?' for a in aspects):
-                        st.caption(f"GO Aspects: {', '.join(aspect_names)}")
+                # Add deeper explanation if available
+                if pd.notna(selected_row.get('Use case (deeper explanation)', '')):
+                    st.markdown("---")
+                    st.markdown("**Deeper Explanation:**")
+                    # Remove "What to look for:" parts from the deeper explanation
+                    deeper_explanation = selected_row['Use case (deeper explanation)']
+                    # Split by "What to look for:" and take only the first part
+                    if "What to look for:" in deeper_explanation:
+                        deeper_explanation = deeper_explanation.split("What to look for:")[0].strip()
+                    st.write(deeper_explanation)
+                
+                # Add benefits of targeting these terms if available
+                if pd.notna(selected_row.get('Why a drug/protein here helps (benefits)', '')):
+                    st.markdown("---")
+                    st.markdown("**Benefits of Targeting These GO Terms:**")
+                    st.write(selected_row['Why a drug/protein here helps (benefits)'])
                 
                 # Add GO term references
-                if pd.notna(selected_row.get('References', '')):
+                if pd.notna(selected_row.get('GO Term References', '')):
                     st.markdown("---")
                     st.markdown("📚 **GO Term References:**")
-                    ref_links = [ref.strip() for ref in selected_row['References'].split(';')]
+                    ref_links = [ref.strip() for ref in selected_row['GO Term References'].split(';')]
                     for i, (go_id, go_name, ref_link) in enumerate(zip(go_ids, go_names, ref_links)):
                         st.markdown(f"• [{go_id}: {go_name}]({ref_link}) 🔗")
-                
-                # Add use case references (scientific papers)
-                if pd.notna(selected_row.get('Use Case References', '')):
-                    st.markdown("---")
-                    st.markdown("📄 **Scientific Literature:**")
-                    paper_refs = [ref.strip() for ref in selected_row['Use Case References'].split(';')]
-                    for i, ref in enumerate(paper_refs):
-                        if ref.startswith('http'):
-                            # Extract DOI from URL if possible
-                            if 'doi.org/' in ref:
-                                doi = ref.split('doi.org/')[-1]
-                                st.markdown(f"• [DOI: {doi}]({ref}) - Peer-reviewed research paper")
-                            else:
-                                st.markdown(f"• [Research Paper {i+1}]({ref})")
-                        else:
-                            st.markdown(f"• {ref}")
     
     # Show a message if no GO terms are selected
     if not go_terms:
-        st.info("👆 Please select GO terms or a predefined use case to begin.")
+        st.info("👆 Please select GO terms or an example use case to begin.")
         # Reset retrieval state when no GO terms
         if st.session_state.reference_sequences_retrieved:
             st.session_state.reference_sequences_retrieved = False
@@ -866,6 +910,10 @@ def show_interactive_demo():
             st.session_state.plddt_analyzed = {}
     
     st.session_state.previous_go_terms = go_terms
+    
+    # Add spacing before next section
+    if go_terms:
+        st.markdown("<br><br>", unsafe_allow_html=True)
     
     # Reference sequences based on selected GO terms
     if go_terms:
@@ -903,17 +951,11 @@ def show_interactive_demo():
                         st.rerun()
             return  # Don't show anything else until retrieval is complete
         
-        # Create a summary of selected GO terms
-        go_summary = []
-        for term in go_terms[:3]:  # Show first 3 terms
-            go_id = term.split(" - ")[0]
-            go_name = term.split(" - ")[1] if " - " in term else go_id
-            go_summary.append(f"**{go_id}** ({go_name})")
-        
-        if len(go_terms) > 3:
-            go_summary.append(f"... and {len(go_terms) - 3} more")
-        
-        st.info(f"🔍 Retrieved sequences from UniRef50 database that have been experimentally verified to possess ALL selected GO terms: {', '.join(go_summary)}")
+        # Create a cleaner message about retrieved sequences
+        if len(go_terms) == 1:
+            st.info(f"🔍 Retrieved sequences from UniRef50 database that have been verified to possess the selected GO term.")
+        else:
+            st.info(f"🔍 Retrieved sequences from UniRef50 database that have been verified to possess ALL {len(go_terms)} selected GO terms.")
         
         # Define reference sequences for different GO terms
         reference_sequences = {
@@ -1033,23 +1075,29 @@ def show_interactive_demo():
         
         # Display reference sequences with ALL selected GO term annotations
         st.markdown("**Retrieved sequences with verified GO term annotations:**")
+        
+        # Show selected GO terms in a clean format
+        st.caption("Selected GO terms:")
+        go_cols = st.columns(min(len(go_terms), 3))
+        for i, term in enumerate(go_terms[:3]):
+            go_id = term.split(" - ")[0]
+            go_name = term.split(" - ")[1] if " - " in term else go_id
+            with go_cols[i % 3]:
+                st.markdown(f"• **{go_id}**  \n  {go_name}")
+        
+        if len(go_terms) > 3:
+            st.caption(f"... and {len(go_terms) - 3} more")
+        
         with st.expander("ℹ️ Why these sequences?"):
             st.markdown("""
-            These reference sequences are retrieved because they have been experimentally verified to possess **ALL** the selected GO terms. 
+            These reference sequences are retrieved because they have been verified to possess **ALL** the selected GO terms. 
             In the PRO-GO approach, these multi-functional proteins serve as ideal templates to guide the generation of new sequences 
             with the same combination of desired properties.
             """)
         
         for i, (ref_id, seq) in enumerate(shown_refs):
             with st.expander(f"Reference {i+1}: {ref_id}"):
-                # Show ALL selected GO term badges - these sequences match all target terms
-                st.markdown("**Verified GO term annotations (matches all selected terms):**")
-                go_badges = []
-                for term in go_terms:
-                    go_id = term.split(" - ")[0]
-                    go_name = term.split(" - ")[1] if " - " in term else go_id
-                    go_badges.append(f'<span style="background-color: #E3F2FD; color: #1976D2; padding: 2px 8px; border-radius: 12px; font-size: 0.85em; margin-right: 5px;">✓ {go_id}: {go_name}</span>')
-                st.markdown(''.join(go_badges), unsafe_allow_html=True)
+                st.caption("✓ This sequence possesses all selected GO terms")
                 
                 st.code(seq, language="text")
                 
@@ -1063,6 +1111,7 @@ def show_interactive_demo():
     
     # Only show generate button if reference sequences have been retrieved
     if go_terms and st.session_state.reference_sequences_retrieved:
+        st.markdown("<br><br>", unsafe_allow_html=True)
         st.subheader("3. Generate Protein Sequences")
         st.info("🧬 Now that we have reference sequences, PRO-GO can generate new protein sequences with the same GO term properties.")
         
@@ -1090,7 +1139,7 @@ def show_interactive_demo():
                 st.success("✅ Generation complete! Sequences optimized for target GO terms.")
             
             # Show results
-            st.markdown("---")
+            # st.markdown("---")
             
             # Load real generated sequences based on selected GO terms
             # Extract just the GO IDs from the selected terms
@@ -1256,16 +1305,7 @@ def show_interactive_demo():
         for i, seq_data in enumerate(st.session_state.generated_sequences):
             with st.expander(f"Sequence {i+1}"):
                 # Show that this sequence is designed for the selected GO terms
-                st.markdown("**Designed to possess all selected GO terms:**")
-                go_badges = []
-                for term in go_terms:
-                    go_id = term.split(" - ")[0]
-                    go_name = term.split(" - ")[1] if " - " in term else go_id
-                    # Simple badge without confidence scores (those come after structure prediction)
-                    go_badges.append(f'<span style="background-color: #E8F5E9; color: #2E7D32; border: 1px solid #4CAF50; padding: 4px 10px; border-radius: 12px; font-size: 0.85em; margin-right: 5px; margin-bottom: 3px; display: inline-block;">🎯 {go_id}: {go_name}</span>')
-                
-                st.markdown(''.join(go_badges), unsafe_allow_html=True)
-                st.markdown("")  # Add spacing
+                st.caption("🎯 This sequence is designed to possess all selected GO terms")
                 
                 # Show the sequence
                 st.markdown("**Sequence:**")
@@ -1276,6 +1316,7 @@ def show_interactive_demo():
     
     # Allow sequence selection if sequences have been generated
     if st.session_state.generated_sequences:
+        st.markdown("<br><br>", unsafe_allow_html=True)
         st.markdown("---")
         st.subheader("4. Select a Sequence for Structure Visualization")
         
@@ -1303,6 +1344,7 @@ def show_interactive_demo():
         selected_seq_data = st.session_state.generated_sequences[st.session_state.selected_sequence_idx]
         seq_key = f"seq_{st.session_state.selected_sequence_idx}"
         
+        st.markdown("<br><br>", unsafe_allow_html=True)
         st.subheader(f"4. Structure Prediction for Sequence {st.session_state.selected_sequence_idx + 1}")
         
         # Display selected sequence info
@@ -1319,9 +1361,8 @@ def show_interactive_demo():
             st.markdown("""
             **ESMFold in the PRO-GO Pipeline:**
             1. **Structure Prediction**: Generated sequences are folded using ESMFold to predict 3D structures
-            2. **Confidence Assessment**: ESMFold provides per-residue pLDDT scores (0-100) indicating prediction confidence
-            3. **Structural Validation**: Predicted structures are compared to known structures using TM-score
-            4. **Functional Verification**: High structural similarity (TM-score >0.8) suggests functional similarity
+            2. **Structural Validation**: Predicted structures are compared to known structures using TM-score
+            3. **Functional Verification**: High structural similarity (TM-score >0.8) suggests functional similarity
             
             ESMFold enables rapid structure prediction without requiring homology templates or multiple sequence alignments.
             """)
@@ -1363,6 +1404,7 @@ def show_interactive_demo():
                         
         # Show visualization if structure has been predicted
         if seq_key in st.session_state.structure_predicted:
+            st.markdown("<br><br>", unsafe_allow_html=True)
             st.markdown("---")
             st.subheader("5. ESMFold Structure Prediction Results")
         
@@ -1487,19 +1529,12 @@ def show_interactive_demo():
             with st.expander("ℹ️ Understanding the Structure Comparison"):
                 st.markdown(f"""
                 **What you're seeing:**
-                - **Left (PRO-GO Predicted)**: The ESMFold prediction for your generated sequence (with pLDDT confidence coloring)
-                - **Right (Ground Truth)**: An experimental reference structure with the same GO terms (shown in gray, no pLDDT)
+                - **Left (PRO-GO Predicted)**: The ESMFold prediction for your generated sequence
+                - **Right (Ground Truth)**: A Ground Truth structure verified to possess the same GO terms
                 
                 **Why this comparison matters:**
-                - High structural similarity (TM-score: {selected_seq_data['tm_score']:.3f}) confirms the generated sequence likely has the target GO terms
+                - High structural similarity (TM-score: {selected_seq_data['tm_score']:.3f}) shows the generated sequence likely has the target GO terms/ simlar properties
                 - The similar overall fold demonstrates PRO-GO's ability to generate functional proteins
-                - Visible differences show natural structural variation between proteins with the same function
-                - Both structures share the same secondary structure patterns despite coordinate differences
-                
-                **Key differences:**
-                - Predicted structure: Shows ESMFold's confidence (blue=high, red=low)
-                - Ground truth: Experimental structure in uniform gray (no prediction confidence)
-                - Slight structural variations: ~1.5 Å perturbations simulate natural protein diversity
                 """)
         
             # 3D Visualization - Side by side
@@ -1546,8 +1581,8 @@ def show_interactive_demo():
             
             # Right column - Ground Truth Structure
             with col_right:
-                st.markdown("**Ground Truth Structure**")
-                st.caption(f"Experimental reference with target GO terms (no pLDDT)")
+                st.markdown("**Ground Truth Structure (Top Similarity)**")
+                st.caption(f"Ground Truth Protein Structure with target GO terms")
                 
                 # Create 3D view for ground truth structure
                 view_gt = py3Dmol.view(width=400, height=500)
@@ -1610,7 +1645,7 @@ def show_interactive_demo():
             
             # Show GO term confidence scores based on structural validation
             st.markdown("---")
-            st.markdown("**Structural validation shows this sequence possesses the target GO terms properties:**")
+            st.markdown("**Structural validation shows this sequence is highly likely to possess similar properties/functionality to the Ground Truth Protein, which possesses the target GO terms:**")
             go_badges = []
             for term in go_terms:
                 go_id = term.split(" - ")[0]
@@ -1646,7 +1681,7 @@ def show_interactive_demo():
                 - 🟢 **85-89% (Very Good)**: High structural similarity - proteins very likely share the same functions
                 - 🟢 **80-84% (Good)**: Good structural similarity - proteins likely share most functions
                 
-                All our generated sequences achieve TM-scores >0.8, indicating significant structural similarity to reference proteins.
+                When our generated sequences achieve TM-scores >0.8, it indicates significant structural similarity to reference proteins.
                 """)
             
             # Show TM-score and GO match after prediction
@@ -1660,88 +1695,184 @@ def show_interactive_demo():
                 st.metric("GO Match", f"{selected_seq_data['go_match']}%", 
                          help="Overall confidence that this sequence possesses ALL selected GO terms based on structural similarity")
             
-            # pLDDT Analysis section with button
-            st.markdown("---")
+            # Full evaluation results section
+            st.markdown("<br>", unsafe_allow_html=True)
             
-            plddt_key = f"plddt_{seq_key}"
+            # Initialize session state for full results
+            if f'show_full_results_{seq_key}' not in st.session_state:
+                st.session_state[f'show_full_results_{seq_key}'] = False
             
-            # Button to generate pLDDT analysis
-            if plddt_key not in st.session_state.plddt_analyzed:
-                if st.button("🔬 Generate pLDDT Analysis", type="primary", use_container_width=True):
-                    with st.spinner("Analyzing per-residue confidence scores..."):
-                        import time
-                        time.sleep(2)  # Simulate processing
-                        st.session_state.plddt_analyzed[plddt_key] = True
-                        st.rerun()
+            # Button to show full results
+            if st.button("📊 View Full Results", key=f"full_results_btn_{seq_key}"):
+                st.session_state[f'show_full_results_{seq_key}'] = not st.session_state[f'show_full_results_{seq_key}']
             
-            # Show pLDDT analysis if generated
-            if plddt_key in st.session_state.plddt_analyzed:
-                st.subheader("Per-residue pLDDT Analysis (Predicted Structure Only)")
+            # Show full results if button clicked
+            if st.session_state[f'show_full_results_{seq_key}']:
+                st.markdown("---")
+                st.subheader("Full Evaluation Results")
                 
-                if plddt:
-                    with st.expander("ℹ️ What is pLDDT?"):
+                # Show evaluation pipeline
+                st.markdown("### 🔬 Evaluation Pipeline")
+                try:
+                    eval_pipeline_img = Image.open('/mnt/Code/demo_data/img/eval_pipeline2.png')
+                    st.image(eval_pipeline_img, caption="PRO-GO Evaluation Pipeline", use_container_width=True)
+                    
+                    with st.expander("ℹ️ About the Evaluation Pipeline"):
                         st.markdown("""
-                        **pLDDT** is like a confidence score for each part of the predicted protein structure.
+                        The PRO-GO evaluation pipeline validates generated sequences through multiple stages:
                         
-                        Imagine if a weather forecast gave you confidence levels for each hour:
-                        - **Blue (90-100)**: "We're very confident" - like predicting sunny weather in the desert
-                        - **Green (70-90)**: "Pretty confident" - like a typical weather forecast
-                        - **Yellow (50-70)**: "Somewhat uncertain" - like predicting weather a week ahead
-                        - **Red (<50)**: "Very uncertain" - like predicting weather a month ahead
+                        1. **Sequence Generation**: PRO-GO generates protein sequences based on target GO terms
+                        2. **Structure Prediction**: Generated sequences are folded using ESMFold
+                        3. **Structural Comparison**: Predicted structures are compared against known proteins with the same GO terms
+                        4. **TM-score Calculation**: Structural similarity is quantified using TM-score (0-1 scale)
+                        5. **Functional Validation**: High TM-scores (>0.8) indicate likely functional similarity
                         
-                        Scientists use these colors to know which parts of the protein structure they can trust most.
-                        The computer is essentially saying "I'm very sure about the blue parts, but less sure about the red parts."
+                        This rigorous evaluation ensures generated proteins are structurally sound and functionally relevant.
                         """)
-                    y_label = "pLDDT"
-                    caption = "The plot shows confidence in the predicted structure for each residue position."
+                except:
+                    st.warning("Evaluation pipeline image not found.")
+                
+                # Show similarity results
+                st.markdown("### 📈 Performance Comparison")
+                st.markdown("**How do PRO-GO generated proteins compare to existing proteins with the same GO terms?**")
+                
+                try:
+                    similarity_img = Image.open('/mnt/Code/demo_data/img/similarity_results_line_graph_simple.png')
+                    st.image(similarity_img, caption="Structural Similarity Distribution: PRO-GO vs Target Benchmark Proteins", use_container_width=True)
                     
-                    # Line plot
-                    fig = px.line(x=list(range(1, len(plddt) + 1)), y=plddt,
-                                  labels={"x": "Residue index", "y": y_label})
+                    st.info("""
+                    This graph compares PRO-GO generated proteins against target benchmark proteins from the UniProt database that are known to possess the same GO terms. 
+                    The similar curves demonstrate that PRO-GO successfully generates proteins with comparable structural quality to naturally occurring proteins with the desired functions.
+                    """)
+                except:
+                    st.warning("Similarity results graph not found.")
+                
+                # Show similarity table
+                st.markdown("### 📊 Detailed Performance Metrics")
+                
+                # Read and display the similarity table
+                try:
+                    with open('/mnt/Code/demo_data/img/similarity_table.txt', 'r') as f:
+                        table_content = f.read()
                     
-                    # Add threshold bands
-                    fig.add_hrect(y0=0, y1=low_thr, line_width=0, fillcolor="red", opacity=0.08)
-                    fig.add_hrect(y0=low_thr, y1=med_thr, line_width=0, fillcolor="yellow", opacity=0.08)
-                    fig.add_hrect(y0=med_thr, y1=100, line_width=0, fillcolor="blue", opacity=0.06)
+                    # Parse the table content
+                    lines = table_content.strip().split('\n')
+                    table_lines = [line for line in lines if line.strip() and line.startswith('|')]
                     
-                    fig.update_layout(
-                        title=f"Per-residue {y_label} scores",
-                        height=400
-                    )
-                    
-                    st.plotly_chart(fig, use_container_width=True)
-                    
-                    st.caption(caption)
-                    
-                    # Histogram of pLDDT
-                    col1, col2 = st.columns(2)
-                    
-                    with col1:
-                        st.subheader(f"{y_label} Distribution")
-                        hist_fig = px.histogram(x=plddt, nbins=20, 
-                                               labels={"x": y_label, "count": "Number of residues"},
-                                               title=f"Distribution of {y_label} scores")
-                        hist_fig.update_layout(height=350)
-                        st.plotly_chart(hist_fig, use_container_width=True)
-                    
-                    with col2:
-                        st.subheader("Confidence Summary")
+                    if len(table_lines) >= 3:
+                        # Extract headers
+                        headers = [h.strip() for h in table_lines[0].split('|')[1:-1]]
                         
-                        low_count = sum(v < low_thr for v in plddt)
-                        med_count = sum((v >= low_thr) and (v < med_thr) for v in plddt)
-                        high_count = sum(v >= med_thr for v in plddt)
-                        total_count = len(plddt)
+                        # Extract data rows (skip the separator line)
+                        data = []
+                        for line in table_lines[2:]:
+                            if line.strip():
+                                row = [cell.strip() for cell in line.split('|')[1:-1]]
+                                if len(row) == len(headers):
+                                    data.append(row)
                         
-                        # Create metrics
-                        st.metric("Low confidence", f"{low_count} ({low_count/total_count*100:.1f}%)", 
-                                 help=f"pLDDT < {low_thr}")
-                        st.metric("Medium confidence", f"{med_count} ({med_count/total_count*100:.1f}%)", 
-                                 help=f"{low_thr} ≤ pLDDT < {med_thr}")
-                        st.metric("High confidence", f"{high_count} ({high_count/total_count*100:.1f}%)", 
-                                 help=f"pLDDT ≥ {med_thr}")
+                        # Create DataFrame
+                        df = pd.DataFrame(data, columns=headers)
                         
-                        # Average score (already calculated above)
-                        st.metric(f"Average {y_label}", f"{actual_avg_plddt:.1f}")
+                        # Style the dataframe
+                        st.dataframe(df, use_container_width=True)
+                        
+                        # Show key observations
+                        st.markdown("**Key Observations:**")
+                        st.markdown("""
+                        - **Consistently Small Differences**: Across all TM-score thresholds, the differences between generated and benchmark proteins range from only 1.7% to 5.7%
+                        - **Excellent Agreement**: The similar performance demonstrates PRO-GO's ability to generate proteins comparable to natural sequences
+                        """)
+                except:
+                    st.warning("Similarity table not found.")
+            
+            # pLDDT Analysis section with button - only show if full results are displayed
+            if st.session_state.get(f'show_full_results_{seq_key}', False):
+                st.markdown("<br><br>", unsafe_allow_html=True)
+                st.markdown("---")
+                
+                plddt_key = f"plddt_{seq_key}"
+                
+                # Button to generate pLDDT analysis
+                if plddt_key not in st.session_state.plddt_analyzed:
+                    if st.button("🔬 Generate pLDDT Analysis", type="primary", use_container_width=True):
+                        with st.spinner("Analyzing per-residue confidence scores..."):
+                            import time
+                            time.sleep(2)  # Simulate processing
+                            st.session_state.plddt_analyzed[plddt_key] = True
+                            st.rerun()
+                
+                # Show pLDDT analysis if generated
+                if plddt_key in st.session_state.plddt_analyzed:
+                    st.subheader("Per-residue pLDDT Analysis")
+                    
+                    if plddt:
+                        with st.expander("ℹ️ What is pLDDT?"):
+                            st.markdown("""
+                            **pLDDT** is like a confidence score for each part of the predicted protein structure.
+                            
+                            Imagine if a weather forecast gave you confidence levels for each hour:
+                            - **Blue (90-100)**: "We're very confident" - like predicting sunny weather in the desert
+                            - **Green (70-90)**: "Pretty confident" - like a typical weather forecast
+                            - **Yellow (50-70)**: "Somewhat uncertain" - like predicting weather a week ahead
+                            - **Red (<50)**: "Very uncertain" - like predicting weather a month ahead
+                            
+                            Scientists use these colors to know which parts of the protein structure they can trust most.
+                            The computer is essentially saying "I'm very sure about the blue parts, but less sure about the red parts."
+                            """)
+                        y_label = "pLDDT"
+                        caption = "The plot shows confidence in the predicted structure for each residue position."
+                        
+                        # Line plot
+                        fig = px.line(x=list(range(1, len(plddt) + 1)), y=plddt,
+                                      labels={"x": "Residue index", "y": y_label})
+                        
+                        # Add threshold bands
+                        fig.add_hrect(y0=0, y1=low_thr, line_width=0, fillcolor="red", opacity=0.08)
+                        fig.add_hrect(y0=low_thr, y1=med_thr, line_width=0, fillcolor="yellow", opacity=0.08)
+                        fig.add_hrect(y0=med_thr, y1=100, line_width=0, fillcolor="blue", opacity=0.06)
+                        
+                        fig.update_layout(
+                            title=f"Per-residue {y_label} scores",
+                            height=400
+                        )
+                        
+                        st.plotly_chart(fig, use_container_width=True)
+                        
+                        st.caption(caption)
+                        
+                        # Histogram of pLDDT
+                        col1, col2 = st.columns(2)
+                        
+                        with col1:
+                            st.subheader(f"{y_label} Distribution")
+                            hist_fig = px.histogram(x=plddt, nbins=20, 
+                                                   labels={"x": y_label, "count": "Number of residues"},
+                                                   title=f"Distribution of {y_label} scores")
+                            hist_fig.update_layout(height=350)
+                            st.plotly_chart(hist_fig, use_container_width=True)
+                        
+                        with col2:
+                            st.subheader("Confidence Summary")
+                            
+                            low_count = sum(v < low_thr for v in plddt)
+                            med_count = sum((v >= low_thr) and (v < med_thr) for v in plddt)
+                            high_count = sum(v >= med_thr for v in plddt)
+                            total_count = len(plddt)
+                            
+                            # Create metrics
+                            st.metric("Low confidence", f"{low_count} ({low_count/total_count*100:.1f}%)", 
+                                     help=f"pLDDT < {low_thr}")
+                            st.metric("Medium confidence", f"{med_count} ({med_count/total_count*100:.1f}%)", 
+                                     help=f"{low_thr} ≤ pLDDT < {med_thr}")
+                            st.metric("High confidence", f"{high_count} ({high_count/total_count*100:.1f}%)", 
+                                     help=f"pLDDT ≥ {med_thr}")
+                            
+                            # Average score (already calculated above)
+                            st.metric(f"Average {y_label}", f"{actual_avg_plddt:.1f}")
+    
+    # Add substantial bottom padding to improve scrolling
+    st.markdown("<br><br><br><br><br><br><br><br><br><br>", unsafe_allow_html=True)
 
 if __name__ == "__main__":
         main()
