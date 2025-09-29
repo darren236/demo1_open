@@ -125,108 +125,235 @@ def main():
     st.sidebar.title("Navigation")
     section = st.sidebar.radio(
         "Go to section:",
-        ["🏠 Overview", "🎯 Motivation", "🚀 Demo"]
+        ["🏠 Overview", "🚀 Demo"]
     )
     
     if section == "🏠 Overview":
         show_overview(paper_data)
-    elif section == "🎯 Motivation":
-        show_motivation()
     elif section == "🚀 Demo":
         show_interactive_demo()
 
 def show_overview(paper_data):
     st.header("Overview")
     
-    # Abstract
-    st.subheader("Abstract")
-    if paper_data and 'metadata' in paper_data:
-        abstract = paper_data['metadata'].get('abstract', '')
-        if abstract:
-            st.markdown(f'<div class="highlight-box">{abstract}</div>', unsafe_allow_html=True)
-        else:
-            st.info("Abstract: Protein sequence generation models aim to produce valid protein candidates on demand. However, controllably generating protein sequences with specified target functionalities remains difficult. PRO-GO presents a novel method for general controllable protein sequence generation that leverages reference sequences to guide generation and specifies target characteristics through Gene Ontology (GO) terms.")
+    # Hero section with abstract
+    st.markdown("""
+    <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); 
+                padding: 2rem; border-radius: 15px; margin: 1rem 0; 
+                color: white; text-align: center;">
+        <h2 style="color: white; margin-bottom: 1rem;">🧬 PRO-GO: Reference-Guided Protein Sequence Generation using Gene Ontology Terms</h2>
+        <p style="font-size: 1.2rem; margin-bottom: 0; line-height: 1.6;">
+            Framework for controllable protein sequence generation using reference sequences and Gene Ontology terms
+        </p>
+    </div>
+    """, unsafe_allow_html=True)
     
-    # Key contributions
-    st.subheader("Key Contributions")
+    # Abstract section with better styling
+    st.subheader("📋 Abstract")
+    abstract_text = """
+    Protein sequence generation models aim to produce valid protein candidates on demand, however, 
+    controllably generating protein sequences with specified target functionalities remains difficult. 
+    The few existing models able to controllably generate protein sequences are limited to broad classes. 
+    We present a novel method for general controllable protein sequence generation that leverages reference sequences to 
+    guide generation, and specifies target characteristics through Gene Ontology (GO) terms. We design an evaluation 
+    pipeline based on a Top-TM-score target metric that prioritizes closest-shape matching with ground truth exemplars. 
+    We evaluate the effectiveness of this reference-guided controllability approach for protein design across various models and 
+    a diverse range of GO term combinations. Results demonstrate controllability with exhibit high accuracy against target benchmarks.
+    """
+    
+    st.markdown(f'<div class="highlight-box" style="font-size: 1.1rem; line-height: 1.7;">{abstract_text}</div>', unsafe_allow_html=True)
+    
+    # Key contributions with enhanced styling
+    st.subheader("🚀 Key Contributions")
+    
+    # Create a more visually appealing grid
     col1, col2 = st.columns(2)
     
     with col1:
         st.markdown("""
-        <div class="metric-card">
-            <h3>🎯 Reference-Guided Framework</h3>
-            <p>Augments model generation capabilities using reference protein sequences</p>
+        <div class="metric-card" style="background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%); 
+                    border-left: 5px solid #e91e63; margin-bottom: 1rem;">
+            <h3 style="color: #c2185b; margin-top: 0;">🎯 Reference-Guided Framework</h3>
+            <p style="margin-bottom: 0;">Augments model generation capabilities using reference protein sequences to guide the creation of novel proteins with desired properties</p>
         </div>
         """, unsafe_allow_html=True)
         
         st.markdown("""
-        <div class="metric-card">
-            <h3>🏷️ GO-Term Integration</h3>
-            <p>User-friendly target property specification through Gene Ontology descriptors</p>
+        <div class="metric-card" style="background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%); 
+                    border-left: 5px solid #00bcd4; margin-bottom: 1rem;">
+            <h3 style="color: #0097a7; margin-top: 0;">🏷️ GO-Term Integration</h3>
+            <p style="margin-bottom: 0;">User-friendly target property specification through Gene Ontology descriptors, enabling precise functional control</p>
         </div>
         """, unsafe_allow_html=True)
     
     with col2:
         st.markdown("""
-        <div class="metric-card">
-            <h3>📏 Evaluation Pipeline</h3>
-            <p>Assesses structural similarity using Top-TM-score metrics</p>
+        <div class="metric-card" style="background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%); 
+                    border-left: 5px solid #ff9800; margin-bottom: 1rem;">
+            <h3 style="color: #f57c00; margin-top: 0;">📏 Evaluation Pipeline</h3>
+            <p style="margin-bottom: 0;">Comprehensive assessment using TM-score metrics to validate structural similarity and functional relevance</p>
         </div>
         """, unsafe_allow_html=True)
         
         st.markdown("""
-        <div class="metric-card">
-            <h3>🤖 LLM Insights</h3>
-            <p>Demonstrates LLM capabilities for controllable protein generation</p>
+        <div class="metric-card" style="background: linear-gradient(135deg, #d299c2 0%, #fef9d7 100%); 
+                    border-left: 5px solid #9c27b0; margin-bottom: 1rem;">
+            <h3 style="color: #7b1fa2; margin-top: 0;">🤖 LLM Innovation</h3>
+            <p style="margin-bottom: 0;">Demonstrates advanced LLM capabilities for controllable protein generation without model retraining</p>
         </div>
         """, unsafe_allow_html=True)
-
-def show_motivation():
-    st.header("Motivation")
     
-    st.subheader("Current Challenges in Protein Design")
+    # Add the overview image
+    st.markdown("<br>", unsafe_allow_html=True)
+    st.subheader("🔬 PRO-GO Framework")
     
-    challenges = [
-        {
-            "challenge": "Limited Control",
-            "description": "Existing models lack precise functional or property control, especially for multifunctional capabilities",
-            "icon": "🚫"
-        },
-        {
-            "challenge": "Narrow Scope",
-            "description": "Models like PrefixProt are limited to specific protein categories they were trained on",
-            "icon": "🎯"
-        },
-        {
-            "challenge": "Retraining Burden",
-            "description": "Need for extensive model retraining for each new functional category",
-            "icon": "🔄"
-        },
-        {
-            "challenge": "Limited Annotations",
-            "description": "Restricted input functional annotations in current methodologies",
-            "icon": "📝"
-        }
-    ]
+    try:
+        overview_img = Image.open('/mnt/Code/demo_data/img/overview.png')
+        col1, col2, col3 = st.columns([1, 3, 1])  # Center the image
+        with col2:
+            st.image(overview_img, caption="PRO-GO Framework Overview", use_container_width=True)
+        
+        with st.expander("ℹ️ About the PRO-GO Framework"):
+            st.markdown("""
+            **PRO-GO** is a novel framework for controllable protein sequence generation that combines two key innovations:
+            
+            **1. Reference-Guided Generation**
+            - Uses existing protein sequences as templates to guide the generation process
+            - Leverages the structural and functional information encoded in reference proteins
+            - Enables generation of novel sequences with desired properties without model retraining
+            
+            **2. GO-Term Specification**
+            - Allows precise specification of target protein characteristics using Gene Ontology terms
+            - GO terms provide standardized, machine-readable descriptions of protein functions
+            - Enables multi-functional protein design by combining multiple GO terms
+            
+            **3. LLM-Based Generation**
+            - Utilizes large language models trained on protein sequences
+            - Generates sequences that are both structurally valid and functionally relevant
+            - Adapts to different GO term combinations without requiring specialized training
+            
+            **Key Innovation**: PRO-GO bridges the gap between high-level functional specifications (GO terms) and low-level sequence generation by using reference proteins as structural guides.
+            """)
+    except:
+        st.warning("Overview image not found. Please ensure 'overview.png' is in the demo_data/img directory.")
     
-    cols = st.columns(2)
-    for i, challenge in enumerate(challenges):
-        with cols[i % 2]:
-            st.markdown(f"""
-            <div class="highlight-box">
-                <h3>{challenge['icon']} {challenge['challenge']}</h3>
-                <p>{challenge['description']}</p>
-            </div>
-            """, unsafe_allow_html=True)
     
-    st.subheader("PRO-GO's Solution")
+    # Add evaluation pipeline and results images
+    st.markdown("<br>", unsafe_allow_html=True)
+    st.subheader("🔬 Evaluation & Results")
+    
+    # Evaluation pipeline image
+    st.markdown("### Evaluation Pipeline")
+    try:
+        eval_pipeline_img = Image.open('/mnt/Code/demo_data/img/eval_pipeline2.png')
+        col1, col2, col3 = st.columns([1, 3, 1])  # Center the image
+        with col2:
+            st.image(eval_pipeline_img, caption="PRO-GO Evaluation Pipeline", use_container_width=True)
+        
+        with st.expander("ℹ️ About the Evaluation Pipeline"):
+            st.markdown("""
+            The PRO-GO evaluation pipeline uses a **Top-TM-Score approach** to validate generated sequences:
+            
+            **1. Structure Prediction**: Generated sequences are folded using ESMFold to obtain 3D coordinates and pLDDT confidence scores.
+            
+            **2. Top-TM-Score Comparison**: Each generated structure is compared against ALL known proteins with the same GO terms, selecting the highest TM-score as the representative score.
+            
+            **3. Functional Validation**: High TM-scores (>0.8) indicate the generated protein likely possesses the target GO terms.
+            
+            **Why Top-TM-Score is Essential:**
+            - **Structural Diversity**: Proteins with the same GO terms may have very different structures
+            - **Best Match Selection**: Top-TM-Score finds the closest structural homolog, not just average similarity
+            - **Conservative Assessment**: Provides the most reliable estimate of functional capability
+            - **Functional Relevance**: Structural similarity strongly correlates with functional similarity
+            
+            This approach ensures accurate assessment of whether generated proteins can perform target functions.
+            """)
+    except:
+        st.warning("Evaluation pipeline image not found.")
+    
+    # Similarity results image
+    st.markdown("### Performance Comparison")
+    st.markdown("**How do PRO-GO generated proteins compare to existing proteins with the same GO terms?**")
+    
+    try:
+        similarity_img = Image.open('/mnt/Code/demo_data/img/similarity_results_line_graph_simple.png')
+        col1, col2, col3 = st.columns([1, 3, 1])  # Center the image
+        with col2:
+            st.image(similarity_img, caption="Structural Similarity Distribution: PRO-GO vs Target Benchmark Proteins", use_container_width=True)
+        
+        st.info("""
+        **Performance Comparison Using Top-TM-Score Approach:**
+        
+        This graph compares PRO-GO generated proteins against target benchmark proteins from the UniProt database that are known to possess the same GO terms. 
+        
+        **Key Insights:**
+        - **Similar Distribution Curves**: The overlapping curves demonstrate that PRO-GO successfully generates proteins with comparable structural quality to naturally occurring proteins
+        - **Top-TM-Score Methodology**: Each generated protein is compared against ALL benchmark proteins with the same GO terms, and the highest TM-score is selected
+        - **Conservative Assessment**: This approach provides the most reliable estimate of functional capability by finding the best possible structural match
+        - **Functional Relevance**: The close alignment indicates that PRO-GO-generated proteins are likely to perform the same biological functions as natural proteins with identical GO term annotations
+        
+        The minimal differences (1.7-5.7% across all thresholds) validate PRO-GO's ability to generate functionally relevant protein sequences.
+        """)
+    except:
+        st.warning("Similarity results graph not found.")
+    
+    # Detailed performance metrics table
+    st.markdown("### 📊 Detailed Performance Metrics")
+    
+    # Read and display the similarity table
+    try:
+        with open('/mnt/Code/demo_data/img/similarity_table.txt', 'r') as f:
+            table_content = f.read()
+        
+        # Parse the table content
+        lines = table_content.strip().split('\n')
+        table_lines = [line for line in lines if line.strip() and line.startswith('|')]
+        
+        if len(table_lines) >= 3:
+            # Extract headers
+            headers = [h.strip() for h in table_lines[0].split('|')[1:-1]]
+            
+            # Extract data rows (skip the separator line)
+            data = []
+            for line in table_lines[2:]:
+                if line.strip():
+                    row = [cell.strip() for cell in line.split('|')[1:-1]]
+                    if len(row) == len(headers):
+                        data.append(row)
+            
+            # Create DataFrame
+            df = pd.DataFrame(data, columns=headers)
+            
+            # Style the dataframe
+            st.dataframe(df, use_container_width=True)
+            
+            # Show key observations
+            st.markdown("**Key Observations (Top-TM-Score Analysis):**")
+            st.markdown("""
+            - **Consistently Small Differences**: Across all TM-score thresholds, the differences between generated and benchmark proteins range from only 1.7% to 5.7%
+            - **Top-TM-Score Validation**: Each generated protein is compared against ALL known proteins with the same GO terms, selecting the highest TM-score as the representative score
+            - **Excellent Agreement**: The similar performance demonstrates PRO-GO's ability to generate proteins comparable to natural sequences
+            - **Conservative Assessment**: The Top-TM-Score approach provides the most reliable estimate of functional capability by finding the best possible structural match
+            - **Functional Confidence**: The close alignment validates that PRO-GO-generated proteins are likely to perform the same biological functions as their natural counterparts
+            """)
+    except:
+        st.warning("Similarity table not found.")
+    
+    # Add a call-to-action section
+    st.markdown("<br>", unsafe_allow_html=True)
     st.markdown("""
-    <div class="method-step">
-        <h3>✨ Flexible Specification</h3>
-        <p>PRO-GO addresses these limitations by enabling flexible specification of protein sequence targets using reference sequences and GO terms, without requiring model retraining for each category.</p>
+    <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); 
+                padding: 1.5rem; border-radius: 15px; margin: 1rem 0; 
+                color: white; text-align: center;">
+        <h3 style="color: white; margin-top: 0;">🎯 Ready to Explore?</h3>
+        <p style="margin-bottom: 1rem; font-size: 1.1rem;">
+            Try the interactive demo to see PRO-GO in action and generate your own protein sequences!
+        </p>
+        <p style="margin: 0; font-style: italic;">
+            Navigate to the "🚀 Demo" section in the sidebar to get started
+        </p>
     </div>
     """, unsafe_allow_html=True)
-
 
 # Helper functions to read real demo data
 def read_fasta_sequences(fasta_file):
@@ -1578,15 +1705,21 @@ def show_interactive_demo():
                     
                     with st.expander("ℹ️ About the Evaluation Pipeline"):
                         st.markdown("""
-                        The PRO-GO evaluation pipeline validates generated sequences through multiple stages:
+                        The PRO-GO evaluation pipeline uses a **Top-TM-Score approach** to validate generated sequences:
                         
-                        1. **Sequence Generation**: PRO-GO generates protein sequences based on target GO terms
-                        2. **Structure Prediction**: Generated sequences are folded using ESMFold
-                        3. **Structural Comparison**: Predicted structures are compared against known proteins with the same GO terms
-                        4. **TM-score Calculation**: Structural similarity is quantified using TM-score (0-1 scale)
-                        5. **Functional Validation**: High TM-scores (>0.8) indicate likely functional similarity
+                        **1. Structure Prediction**: Generated sequences are folded using ESMFold to obtain 3D coordinates and pLDDT confidence scores.
                         
-                        This rigorous evaluation ensures generated proteins are structurally sound and functionally relevant.
+                        **2. Top-TM-Score Comparison**: Each generated structure is compared against ALL known proteins with the same GO terms, selecting the highest TM-score as the representative score.
+                        
+                        **3. Functional Validation**: High TM-scores (>0.8) indicate the generated protein likely possesses the target GO terms.
+                        
+                        **Why Top-TM-Score is Essential:**
+                        - **Structural Diversity**: Proteins with the same GO terms may have very different structures
+                        - **Best Match Selection**: Top-TM-Score finds the closest structural homolog, not just average similarity
+                        - **Conservative Assessment**: Provides the most reliable estimate of functional capability
+                        - **Functional Relevance**: Structural similarity strongly correlates with functional similarity
+                        
+                        This approach ensures accurate assessment of whether generated proteins can perform target functions.
                         """)
                 except:
                     st.warning("Evaluation pipeline image not found.")
@@ -1647,16 +1780,18 @@ def show_interactive_demo():
                 except:
                     st.warning("Similarity table not found.")
             
-            # pLDDT Analysis section with button - only show if full results are displayed
+            # Future Works section - only show if full results are displayed
             if st.session_state.get(f'show_full_results_{seq_key}', False):
                 st.markdown("<br><br>", unsafe_allow_html=True)
                 st.markdown("---")
+                st.subheader("🔮 Future Works")
                 
+                # pLDDT Analysis section under Future Works
                 plddt_key = f"plddt_{seq_key}"
                 
                 # Button to generate pLDDT analysis
                 if plddt_key not in st.session_state.plddt_analyzed:
-                    if st.button("🔬 Generate pLDDT Analysis", type="primary", use_container_width=True):
+                    if st.button("🔬 Generate pLDDT Analysis (Preview)", type="secondary", use_container_width=True):
                         with st.spinner("Analyzing per-residue confidence scores..."):
                             import time
                             time.sleep(2)  # Simulate processing
@@ -1665,7 +1800,7 @@ def show_interactive_demo():
                 
                 # Show pLDDT analysis if generated
                 if plddt_key in st.session_state.plddt_analyzed:
-                    st.subheader("Per-residue pLDDT Analysis")
+                    st.markdown("### Per-residue pLDDT Analysis (Preview)")
                     
                     if plddt:
                         with st.expander("ℹ️ What is pLDDT?"):
