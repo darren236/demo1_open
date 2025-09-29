@@ -173,6 +173,38 @@ def show_overview(paper_data):
     
     st.markdown(f'<div class="highlight-box" style="font-size: 1.1rem; line-height: 1.7;">{abstract_text}</div>', unsafe_allow_html=True)
     
+    # Concise point form abstract
+    with st.expander("📝 View Abstract in Point Form"):
+        st.markdown("""
+        **PRO-GO: Reference-Guided Protein Sequence Generation using Gene Ontology Terms**
+        
+        **Problem:**
+        • Current protein sequence generation models struggle with controllable generation
+        • Existing controllable models are limited to broad protein classes
+        • Need for precise functional control in protein design
+        
+        **Solution:**
+        • Novel reference-guided approach using existing protein sequences as templates
+        • Gene Ontology (GO) terms for precise target characteristic specification
+        • Large language models for sequence generation without retraining
+        
+        **Methodology:**
+        • Reference sequences guide the generation process
+        • GO terms specify desired protein functions
+        • Top-TM-score evaluation pipeline for structural validation
+        • Comparison against ground truth exemplars with same GO terms
+        
+        **Results:**
+        • High accuracy against target benchmarks
+        • Effective across various models and GO term combinations
+        • Demonstrated controllability for diverse protein design tasks
+        
+        **Impact:**
+        • Enables precise, controllable protein sequence generation
+        • Bridges high-level functional specifications with sequence generation
+        • Opens new possibilities for targeted protein design applications
+        """)
+    
     # Key contributions with enhanced styling
     st.subheader("🚀 Key Contributions")
     
