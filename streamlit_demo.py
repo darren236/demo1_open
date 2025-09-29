@@ -163,6 +163,38 @@ def show_overview(paper_data):
     
     st.markdown(f'<div class="highlight-box" style="font-size: 1.1rem; line-height: 1.7;">{abstract_text}</div>', unsafe_allow_html=True)
     
+    # Add PRO-GO poster
+    st.markdown("<br>", unsafe_allow_html=True)
+    st.subheader("📊 PRO-GO Project Overview")
+    
+    try:
+        poster_img = Image.open('/mnt/Code/demo_data/img/progo_poster_no_header.png')
+        col1, col2, col3 = st.columns([1, 4, 1])  # Center the poster
+        with col2:
+            st.image(poster_img, caption="PRO-GO: Reference-Guided Protein Sequence Generation - Project Overview & Industry Engagement", use_container_width=True)
+        
+        with st.expander("ℹ️ About this poster"):
+            st.markdown("""
+            This poster provides a comprehensive overview of the PRO-GO project, including:
+            
+            **Project Scope:**
+            - Reference-guided protein sequence generation methodology
+            - Gene Ontology term integration for functional control
+            - Industry applications and engagement opportunities
+            
+            **Key Features:**
+            - Visual representation of the PRO-GO framework
+            - Technical approach and evaluation metrics
+            - Real-world applications and potential impact
+            
+            **Industry Engagement:**
+            - Collaboration opportunities with pharmaceutical companies
+            - Applications in drug discovery and protein design
+            - Research partnerships and technology transfer
+            """)
+    except:
+        st.warning("PRO-GO poster not found. Please ensure 'progo_poster_no_header.png' is in the demo_data/img directory.")
+    
     # Key contributions with enhanced styling
     st.subheader("🚀 Key Contributions")
     
@@ -232,7 +264,7 @@ def show_overview(paper_data):
             - Generates sequences that are both structurally valid and functionally relevant
             - Adapts to different GO term combinations without requiring specialized training
             
-            **Key Innovation**: PRO-GO bridges the gap between high-level functional specifications (GO terms) and low-level sequence generation by using reference proteins as structural guides.
+            **Key Innovation**: PRO-GO bridges the gap between high-level functional specifications (GO terms) and low-level sequence generation by using reference proteins as guides.
             """)
     except:
         st.warning("Overview image not found. Please ensure 'overview.png' is in the demo_data/img directory.")
@@ -262,11 +294,9 @@ def show_overview(paper_data):
             
             **Why Top-TM-Score is Essential:**
             - **Structural Diversity**: Proteins with the same GO terms may have very different structures
-            - **Best Match Selection**: Top-TM-Score finds the closest structural homolog, not just average similarity
+            - **Best Match Selection**: Top-TM-Score finds the closest structural homologs
             - **Conservative Assessment**: Provides the most reliable estimate of functional capability
-            - **Functional Relevance**: Structural similarity strongly correlates with functional similarity
-            
-            This approach ensures accurate assessment of whether generated proteins can perform target functions.
+            - **Functional Relevance**: Structural similarity strongly correlates with functional similarity            
             """)
     except:
         st.warning("Evaluation pipeline image not found.")
@@ -331,10 +361,10 @@ def show_overview(paper_data):
             st.markdown("**Key Observations (Top-TM-Score Analysis):**")
             st.markdown("""
             - **Consistently Small Differences**: Across all TM-score thresholds, the differences between generated and benchmark proteins range from only 1.7% to 5.7%
-            - **Top-TM-Score Validation**: Each generated protein is compared against ALL known proteins with the same GO terms, selecting the highest TM-score as the representative score
-            - **Excellent Agreement**: The similar performance demonstrates PRO-GO's ability to generate proteins comparable to natural sequences
-            - **Conservative Assessment**: The Top-TM-Score approach provides the most reliable estimate of functional capability by finding the best possible structural match
-            - **Functional Confidence**: The close alignment validates that PRO-GO-generated proteins are likely to perform the same biological functions as their natural counterparts
+            - **Top-TM-Score Validation**: Each generated protein is compared against known proteins with the same GO terms, selecting the highest TM-score as the representative score
+            - **Excellent Agreement**: The similar performance demonstrates PRO-GO's ability to generate proteins comparable to natural sequences (in terms of structure)
+            - **Conservative Assessment**: The Top-TM-Score approach provides an estimate of functional capability by finding the best possible structural match
+            - **Functional Confidence**: The close alignment shows that PRO-GO-generated proteins are likely to perform the same biological functions as their natural counterparts
             """)
     except:
         st.warning("Similarity table not found.")
