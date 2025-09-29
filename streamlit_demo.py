@@ -1623,7 +1623,7 @@ def show_interactive_demo():
                          help="Template Modeling score (0-1) measuring structural similarity to ground truth. The arrow shows how much the score exceeds 0.8 (the minimum for 'good' match). >0.9 = Excellent, >0.85 = Very good, >0.8 = Good.")
             with col2:
                 st.metric("GO Match", f"{selected_seq_data['go_match']}%", 
-                         help="Overall confidence that this sequence possesses ALL selected GO terms based on structural similarity")
+                         help="Overall confidence that this sequence possesses the selected GO term properties based on structural similarity")
             
             # Full evaluation results section
             st.markdown("<br>", unsafe_allow_html=True)
