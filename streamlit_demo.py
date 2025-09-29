@@ -134,6 +134,16 @@ def main():
         show_interactive_demo()
 
 def show_overview(paper_data):
+    # PRO-GO Project Poster - First section
+    st.markdown("### 📊 PRO-GO Project Overview")
+    
+    try:
+        poster_img = Image.open('/mnt/Code/demo_data/img/progo_poster_no_header.png')
+        st.image(poster_img, caption="PRO-GO: Reference-Guided Protein Sequence Generation - Project Overview & Industry Engagement", use_container_width=True)
+    except:
+        st.warning("PRO-GO poster not found. Please ensure 'progo_poster_no_header.png' is in the demo_data/img directory.")
+    
+    st.markdown("<br>", unsafe_allow_html=True)
     st.header("Overview")
     
     # Hero section with abstract
@@ -162,38 +172,6 @@ def show_overview(paper_data):
     """
     
     st.markdown(f'<div class="highlight-box" style="font-size: 1.1rem; line-height: 1.7;">{abstract_text}</div>', unsafe_allow_html=True)
-    
-    # Add PRO-GO poster
-    st.markdown("<br>", unsafe_allow_html=True)
-    st.subheader("📊 PRO-GO Project Overview")
-    
-    try:
-        poster_img = Image.open('/mnt/Code/demo_data/img/progo_poster_no_header.png')
-        col1, col2, col3 = st.columns([1, 4, 1])  # Center the poster
-        with col2:
-            st.image(poster_img, caption="PRO-GO: Reference-Guided Protein Sequence Generation - Project Overview & Industry Engagement", use_container_width=True)
-        
-        with st.expander("ℹ️ About this poster"):
-            st.markdown("""
-            This poster provides a comprehensive overview of the PRO-GO project, including:
-            
-            **Project Scope:**
-            - Reference-guided protein sequence generation methodology
-            - Gene Ontology term integration for functional control
-            - Industry applications and engagement opportunities
-            
-            **Key Features:**
-            - Visual representation of the PRO-GO framework
-            - Technical approach and evaluation metrics
-            - Real-world applications and potential impact
-            
-            **Industry Engagement:**
-            - Collaboration opportunities with pharmaceutical companies
-            - Applications in drug discovery and protein design
-            - Research partnerships and technology transfer
-            """)
-    except:
-        st.warning("PRO-GO poster not found. Please ensure 'progo_poster_no_header.png' is in the demo_data/img directory.")
     
     # Key contributions with enhanced styling
     st.subheader("🚀 Key Contributions")
