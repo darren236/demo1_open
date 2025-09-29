@@ -1,5 +1,7 @@
 # PRO-GO: Reference-Guided Protein Sequence Generation Demo
 
+> **⚠️ IMPORTANT NOTICE: This demo is not for public sharing. This repository contains proprietary research and should only be used for internal demonstration purposes.**
+
 This repository contains a Streamlit demo showcasing the PRO-GO paper: "Reference-Guided Protein Sequence Generation using Gene Ontology Terms" by Darren Tan et al.
 
 ## Overview
