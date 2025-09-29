@@ -247,106 +247,6 @@ def show_overview(paper_data):
     except:
         st.warning("Overview image not found. Please ensure 'overview.png' is in the demo_data/img directory.")
     
-    
-    # Add evaluation pipeline and results images
-    st.markdown("<br>", unsafe_allow_html=True)
-    st.subheader("🔬 Evaluation & Results")
-    
-    # Evaluation pipeline image
-    st.markdown("### Evaluation Pipeline")
-    try:
-        eval_pipeline_img = Image.open('/mnt/Code/demo_data/img/eval_pipeline2.png')
-        col1, col2, col3 = st.columns([1, 3, 1])  # Center the image
-        with col2:
-            st.image(eval_pipeline_img, caption="PRO-GO Evaluation Pipeline", use_container_width=True)
-        
-        with st.expander("ℹ️ About the Evaluation Pipeline"):
-            st.markdown("""
-            The PRO-GO evaluation pipeline uses a **Top-TM-Score approach** to validate generated sequences:
-            
-            **1. Structure Prediction**: Generated sequences are folded using ESMFold to obtain 3D coordinates and pLDDT confidence scores.
-            
-            **2. Top-TM-Score Comparison**: Each generated structure is compared against ALL known proteins with the same GO terms, selecting the highest TM-score as the representative score.
-            
-            **3. Functional Validation**: High TM-scores (>0.8) indicate the generated protein likely possesses the target GO terms.
-            
-            **Why Top-TM-Score is Essential:**
-            - **Structural Diversity**: Proteins with the same GO terms may have very different structures
-            - **Best Match Selection**: Top-TM-Score finds the closest structural homologs
-            - **Conservative Assessment**: Provides the most reliable estimate of functional capability
-            - **Functional Relevance**: Structural similarity strongly correlates with functional similarity            
-            """)
-    except:
-        st.warning("Evaluation pipeline image not found.")
-    
-    # Similarity results image
-    st.markdown("### Performance Comparison")
-    st.markdown("**How do PRO-GO generated proteins compare to existing proteins with the same GO terms?**")
-    
-    try:
-        similarity_img = Image.open('/mnt/Code/demo_data/img/similarity_results_line_graph_simple.png')
-        col1, col2, col3 = st.columns([1, 3, 1])  # Center the image
-        with col2:
-            st.image(similarity_img, caption="Structural Similarity Distribution: PRO-GO vs Target Benchmark Proteins", use_container_width=True)
-        
-        st.info("""
-        **Performance Comparison Using Top-TM-Score Approach:**
-        
-        This graph compares PRO-GO generated proteins against target benchmark proteins from the UniProt database that are known to possess the same GO terms. 
-        
-        **Key Insights:**
-        - **Similar Distribution Curves**: The overlapping curves demonstrate that PRO-GO successfully generates proteins with comparable structural quality to naturally occurring proteins
-        - **Top-TM-Score Methodology**: Each generated protein is compared against ALL benchmark proteins with the same GO terms, and the highest TM-score is selected
-        - **Conservative Assessment**: This approach provides the most reliable estimate of functional capability by finding the best possible structural match
-        - **Functional Relevance**: The close alignment indicates that PRO-GO-generated proteins are likely to perform the same biological functions as natural proteins with identical GO term annotations
-        
-        The minimal differences (1.7-5.7% across all thresholds) validate PRO-GO's ability to generate functionally relevant protein sequences.
-        """)
-    except:
-        st.warning("Similarity results graph not found.")
-    
-    # Detailed performance metrics table
-    st.markdown("### 📊 Detailed Performance Metrics")
-    
-    # Read and display the similarity table
-    try:
-        with open('/mnt/Code/demo_data/img/similarity_table.txt', 'r') as f:
-            table_content = f.read()
-        
-        # Parse the table content
-        lines = table_content.strip().split('\n')
-        table_lines = [line for line in lines if line.strip() and line.startswith('|')]
-        
-        if len(table_lines) >= 3:
-            # Extract headers
-            headers = [h.strip() for h in table_lines[0].split('|')[1:-1]]
-            
-            # Extract data rows (skip the separator line)
-            data = []
-            for line in table_lines[2:]:
-                if line.strip():
-                    row = [cell.strip() for cell in line.split('|')[1:-1]]
-                    if len(row) == len(headers):
-                        data.append(row)
-            
-            # Create DataFrame
-            df = pd.DataFrame(data, columns=headers)
-            
-            # Style the dataframe
-            st.dataframe(df, use_container_width=True)
-            
-            # Show key observations
-            st.markdown("**Key Observations (Top-TM-Score Analysis):**")
-            st.markdown("""
-            - **Consistently Small Differences**: Across all TM-score thresholds, the differences between generated and benchmark proteins range from only 1.7% to 5.7%
-            - **Top-TM-Score Validation**: Each generated protein is compared against known proteins with the same GO terms, selecting the highest TM-score as the representative score
-            - **Excellent Agreement**: The similar performance demonstrates PRO-GO's ability to generate proteins comparable to natural sequences (in terms of structure)
-            - **Conservative Assessment**: The Top-TM-Score approach provides an estimate of functional capability by finding the best possible structural match
-            - **Functional Confidence**: The close alignment shows that PRO-GO-generated proteins are likely to perform the same biological functions as their natural counterparts
-            """)
-    except:
-        st.warning("Similarity table not found.")
-    
     # Add a call-to-action section
     st.markdown("<br>", unsafe_allow_html=True)
     st.markdown("""
@@ -663,15 +563,6 @@ def show_interactive_demo():
     
     st.header("Interactive Demo")
     st.info("This is a conceptual demo showing how PRO-GO would work in practice. You can either select from example therapeutic target use cases or choose individual GO terms.")
-    
-    # Display overview image
-    try:
-        overview_img = Image.open('/mnt/Code/demo_data/img/overview.png')
-        col1, col2, col3 = st.columns([1, 3, 1])  # Center the image
-        with col2:
-            st.image(overview_img, caption="PRO-GO Framework Overview", use_container_width=True)
-    except:
-        st.warning("Overview image not found. Please ensure 'overview.png' is in the demo_data/img directory.")
     
     # Input section
     st.subheader("1. Specify Target Properties")
