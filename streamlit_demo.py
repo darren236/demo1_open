@@ -135,7 +135,7 @@ def main():
 
 def show_overview(paper_data):
     # PRO-GO Project Poster - First section
-    st.markdown("### 📊 PRO-GO Project Overview")
+    st.markdown("### 📊 PRO-GO Poster")
     
     try:
         poster_img = Image.open('/mnt/Code/demo_data/img/progo_poster_no_header.png')
@@ -262,17 +262,17 @@ def show_overview(paper_data):
             **1. Reference-Guided Generation**
             - Uses existing protein sequences as templates to guide the generation process
             - Leverages the structural and functional information encoded in reference proteins
-            - Enables generation of novel sequences with desired properties without model retraining
+            - Enables generation of novel sequences with desired properties
             
             **2. GO-Term Specification**
             - Allows precise specification of target protein characteristics using Gene Ontology terms
-            - GO terms provide standardized, machine-readable descriptions of protein functions
+            - GO terms provide standardized descriptions of protein functions
             - Enables multi-functional protein design by combining multiple GO terms
             
             **3. LLM-Based Generation**
-            - Utilizes large language models trained on protein sequences
+            - Utilizes large language models to generate sequences
             - Generates sequences that are both structurally valid and functionally relevant
-            - Adapts to different GO term combinations without requiring specialized training
+            - Adapts to different GO term combinations
             
             **Key Innovation**: PRO-GO bridges the gap between high-level functional specifications (GO terms) and low-level sequence generation by using reference proteins as guides.
             """)
@@ -793,6 +793,13 @@ def show_interactive_demo():
             st.info(f"🔍 Retrieved sequences from UniRef50 database that have been verified to possess the selected GO term.")
         else:
             st.info(f"🔍 Retrieved sequences from UniRef50 database that have been verified to possess ALL {len(go_terms)} selected GO terms.")
+        
+        # Add notification about mock data
+        st.warning("""
+        **📝 Demo Note:** The sequences shown below are mock sequences for demonstration purposes. 
+        In the actual PRO-GO implementation, these would be real sequences retrieved from the UniRef50 database 
+        that have been verified to possess the selected GO terms.
+        """)
         
         # Define reference sequences for different GO terms
         reference_sequences = {
