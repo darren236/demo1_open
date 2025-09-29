@@ -1,0 +1,13 @@
+| TM-score Threshold | Generated Proteins | Target Benchmark Proteins | Difference |
+|-------------------|-----------|----------------------------|------------|----------------|
+| ≥ 0.3 | 95.3% | 97.0% | 1.7% |
+| ≥ 0.4 | 90.9% | 93.8% | 2.9% | 
+| ≥ 0.5 | 85.5% | 90.2% | 4.7% | 
+| ≥ 0.6 | 78.7% | 84.4% | 5.7% | 
+| ≥ 0.7 | 70.5% | 75.8% | 5.3% | 
+| ≥ 0.8 | 53.7% | 57.2% | 3.5% | 
+| ≥ 0.9 | 29.1% | 30.8% | 1.7% | 
+
+**Key Observations Supporting Similarity:**
+
+1. **Consistently Small Differences**: Across all thresholds, the absolute differences range from only 1.7% to 5.7%. This represents excellent agreement between the two approaches - for every 100 sequences analyzed, they differ by at most 6 sequences in structural quality assessment.

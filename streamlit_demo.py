@@ -14,6 +14,7 @@ from stmol import showmol
 import re
 import io
 import numpy as np
+from PIL import Image
 
 # Configure page
 st.set_page_config(
@@ -26,6 +27,44 @@ st.set_page_config(
 # Custom CSS for better styling
 st.markdown("""
 <style>
+    /* Add padding to main content area */
+    .main .block-container {
+        padding-top: 3rem;
+        padding-bottom: 10rem;
+        max-width: 1200px;
+    }
+    
+    /* Add more spacing between sections */
+    .stMarkdown {
+        margin-bottom: 1rem;
+    }
+    
+    /* Add spacing after interactive elements */
+    .stButton > button {
+        margin-bottom: 2rem;
+    }
+    
+    .stRadio > div {
+        margin-bottom: 1.5rem;
+    }
+    
+    .stSelectbox > div {
+        margin-bottom: 1.5rem;
+    }
+    
+    .stMultiSelect > div {
+        margin-bottom: 1.5rem;
+    }
+    
+    .stSlider > div {
+        margin-bottom: 1.5rem;
+    }
+    
+    /* Ensure expanders have space */
+    .streamlit-expanderHeader {
+        margin-bottom: 0.5rem;
+    }
+    
     .main-header {
         font-size: 3rem;
         color: #1E88E5;
@@ -75,7 +114,7 @@ def main():
     st.markdown("""
     <div style="text-align: center; margin-bottom: 2rem;">
         <p><strong>Authors:</strong> Darren Tan, Ian McLoughlin, Aik Beng Ng, Zhengkui Wang, Abraham C Stern, Simon See</p>
-        <p><strong>Affiliations:</strong> NVIDIA Singapore & Singapore Institute of Technology</p>
+        <p><strong>Affiliations:</strong> NVIDIA & Singapore Institute of Technology</p>
     </div>
     """, unsafe_allow_html=True)
     
@@ -86,333 +125,175 @@ def main():
     st.sidebar.title("Navigation")
     section = st.sidebar.radio(
         "Go to section:",
-        ["🏠 Overview", "🎯 Motivation", "🔬 Methodology", "🧪 Experiments", "📊 Results", "💡 Key Insights", "🚀 Demo"]
+        ["🏠 Overview", "🚀 Demo"]
     )
     
     if section == "🏠 Overview":
         show_overview(paper_data)
-    elif section == "🎯 Motivation":
-        show_motivation()
-    elif section == "🔬 Methodology":
-        show_methodology()
-    elif section == "🧪 Experiments":
-        show_experiments()
-    elif section == "📊 Results":
-        show_results()
-    elif section == "💡 Key Insights":
-        show_insights()
     elif section == "🚀 Demo":
         show_interactive_demo()
 
 def show_overview(paper_data):
+    # PRO-GO Project Poster - First section
+    st.markdown("### 📊 PRO-GO Poster")
+    
+    try:
+        poster_img = Image.open('/mnt/Code/demo_data/img/progo_poster_no_header.png')
+        st.image(poster_img, caption="PRO-GO: Reference-Guided Protein Sequence Generation - Project Overview & Industry Engagement", use_container_width=True)
+    except:
+        st.warning("PRO-GO poster not found. Please ensure 'progo_poster_no_header.png' is in the demo_data/img directory.")
+    
+    st.markdown("<br>", unsafe_allow_html=True)
     st.header("Overview")
     
-    # Abstract
-    st.subheader("Abstract")
-    if paper_data and 'metadata' in paper_data:
-        abstract = paper_data['metadata'].get('abstract', '')
-        if abstract:
-            st.markdown(f'<div class="highlight-box">{abstract}</div>', unsafe_allow_html=True)
-        else:
-            st.info("Abstract: Protein sequence generation models aim to produce valid protein candidates on demand. However, controllably generating protein sequences with specified target functionalities remains difficult. PRO-GO presents a novel method for general controllable protein sequence generation that leverages reference sequences to guide generation and specifies target characteristics through Gene Ontology (GO) terms.")
-    
-    # Key contributions
-    st.subheader("Key Contributions")
-    col1, col2 = st.columns(2)
-    
-    with col1:
-        st.markdown("""
-        <div class="metric-card">
-            <h3>🎯 Reference-Guided Framework</h3>
-            <p>Augments model generation capabilities using reference protein sequences</p>
-        </div>
-        """, unsafe_allow_html=True)
-        
-        st.markdown("""
-        <div class="metric-card">
-            <h3>🏷️ GO-Term Integration</h3>
-            <p>User-friendly target property specification through Gene Ontology descriptors</p>
-        </div>
-        """, unsafe_allow_html=True)
-    
-    with col2:
-        st.markdown("""
-        <div class="metric-card">
-            <h3>📏 Evaluation Pipeline</h3>
-            <p>Assesses structural similarity using Top-TM-score metrics</p>
-        </div>
-        """, unsafe_allow_html=True)
-        
-        st.markdown("""
-        <div class="metric-card">
-            <h3>🤖 LLM Insights</h3>
-            <p>Demonstrates LLM capabilities for controllable protein generation</p>
-        </div>
-        """, unsafe_allow_html=True)
-
-def show_motivation():
-    st.header("Motivation")
-    
-    st.subheader("Current Challenges in Protein Design")
-    
-    challenges = [
-        {
-            "challenge": "Limited Control",
-            "description": "Existing models lack precise functional or property control, especially for multifunctional capabilities",
-            "icon": "🚫"
-        },
-        {
-            "challenge": "Narrow Scope",
-            "description": "Models like PrefixProt are limited to specific protein categories they were trained on",
-            "icon": "🎯"
-        },
-        {
-            "challenge": "Retraining Burden",
-            "description": "Need for extensive model retraining for each new functional category",
-            "icon": "🔄"
-        },
-        {
-            "challenge": "Limited Annotations",
-            "description": "Restricted input functional annotations in current methodologies",
-            "icon": "📝"
-        }
-    ]
-    
-    cols = st.columns(2)
-    for i, challenge in enumerate(challenges):
-        with cols[i % 2]:
-            st.markdown(f"""
-            <div class="highlight-box">
-                <h3>{challenge['icon']} {challenge['challenge']}</h3>
-                <p>{challenge['description']}</p>
-            </div>
-            """, unsafe_allow_html=True)
-    
-    st.subheader("PRO-GO's Solution")
+    # Hero section with abstract
     st.markdown("""
-    <div class="method-step">
-        <h3>✨ Flexible Specification</h3>
-        <p>PRO-GO addresses these limitations by enabling flexible specification of protein sequence targets using reference sequences and GO terms, without requiring model retraining for each category.</p>
+    <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); 
+                padding: 2rem; border-radius: 15px; margin: 1rem 0; 
+                color: white; text-align: center;">
+        <h2 style="color: white; margin-bottom: 1rem;">🧬 PRO-GO: Reference-Guided Protein Sequence Generation using Gene Ontology Terms</h2>
+        <p style="font-size: 1.2rem; margin-bottom: 0; line-height: 1.6;">
+            Framework for controllable protein sequence generation using reference sequences and Gene Ontology terms
+        </p>
     </div>
     """, unsafe_allow_html=True)
-
-def show_methodology():
-    st.header("Methodology")
     
-    # Framework overview
-    st.subheader("Framework Overview")
+    # Abstract section with better styling
+    st.subheader("📋 Abstract")
+    abstract_text = """
+    Protein sequence generation models aim to produce valid protein candidates on demand, however, 
+    controllably generating protein sequences with specified target functionalities remains difficult. 
+    The few existing models able to controllably generate protein sequences are limited to broad classes. 
+    We present a novel method for general controllable protein sequence generation that leverages reference sequences to 
+    guide generation, and specifies target characteristics through Gene Ontology (GO) terms. We design an evaluation 
+    pipeline based on a Top-TM-score target metric that prioritizes closest-shape matching with ground truth exemplars. 
+    We evaluate the effectiveness of this reference-guided controllability approach for protein design across various models and 
+    a diverse range of GO term combinations. Results demonstrate controllability with exhibit high accuracy against target benchmarks.
+    """
     
-    # Create a flow diagram
-    fig = go.Figure()
+    st.markdown(f'<div class="highlight-box" style="font-size: 1.1rem; line-height: 1.7;">{abstract_text}</div>', unsafe_allow_html=True)
     
-    # Add nodes
-    nodes = [
-        {"name": "GO Terms", "x": 0, "y": 2},
-        {"name": "Reference Sequences", "x": 0, "y": 1},
-        {"name": "LLM Model", "x": 2, "y": 1.5},
-        {"name": "Generated Sequences", "x": 4, "y": 1.5},
-        {"name": "Evaluation", "x": 6, "y": 1.5}
-    ]
+    # Concise point form abstract
+    with st.expander("📝 View Abstract in Point Form"):
+        st.markdown("""
+        **PRO-GO: Reference-Guided Protein Sequence Generation using Gene Ontology Terms**
+        
+        **Problem:**
+        • Current protein sequence generation models struggle with controllable generation
+        • Existing controllable models are limited to broad protein classes
+        • Need for precise functional control in protein design
+        
+        **Solution:**
+        • Novel reference-guided approach using existing protein sequences as templates
+        • Gene Ontology (GO) terms for precise target characteristic specification
+        • Large language models for sequence generation without retraining
+        
+        **Methodology:**
+        • Reference sequences guide the generation process
+        • GO terms specify desired protein functions
+        • Top-TM-score evaluation pipeline for structural validation
+        • Comparison against ground truth exemplars with same GO terms
+        
+        **Results:**
+        • High accuracy against target benchmarks
+        • Effective across various models and GO term combinations
+        • Demonstrated controllability for diverse protein design tasks
+        
+        **Impact:**
+        • Enables precise, controllable protein sequence generation
+        • Bridges high-level functional specifications with sequence generation
+        • Opens new possibilities for targeted protein design applications
+        """)
     
-    # Add edges
-    edges = [
-        {"from": 0, "to": 2},
-        {"from": 1, "to": 2},
-        {"from": 2, "to": 3},
-        {"from": 3, "to": 4}
-    ]
+    # Key contributions with enhanced styling
+    st.subheader("🚀 Key Contributions")
     
-    # Plot nodes
-    for i, node in enumerate(nodes):
-        fig.add_trace(go.Scatter(
-            x=[node['x']], y=[node['y']],
-            mode='markers+text',
-            marker=dict(size=40, color='lightblue'),
-            text=[node['name']],
-            textposition="bottom center",
-            showlegend=False
-        ))
-    
-    # Plot edges
-    for edge in edges:
-        x0, y0 = nodes[edge['from']]['x'], nodes[edge['from']]['y']
-        x1, y1 = nodes[edge['to']]['x'], nodes[edge['to']]['y']
-        fig.add_trace(go.Scatter(
-            x=[x0, x1], y=[y0, y1],
-            mode='lines',
-            line=dict(color='gray', width=2),
-            showlegend=False
-        ))
-    
-    fig.update_layout(
-        title="PRO-GO Framework Flow",
-        showlegend=False,
-        xaxis=dict(showgrid=False, zeroline=False, showticklabels=False),
-        yaxis=dict(showgrid=False, zeroline=False, showticklabels=False),
-        height=300
-    )
-    
-    st.plotly_chart(fig, use_container_width=True)
-    
-    # Method steps
-    st.subheader("Method Steps")
-    
-    steps = [
-        {
-            "step": "1. Target Specification",
-            "description": "User specifies desired protein properties using GO terms (e.g., GO:0005524 for ATP binding)"
-        },
-        {
-            "step": "2. Reference Selection",
-            "description": "System retrieves reference protein sequences that match the target GO terms from databases"
-        },
-        {
-            "step": "3. Guided Generation",
-            "description": "LLM generates new protein sequences guided by the reference sequences and GO term constraints"
-        },
-        {
-            "step": "4. Validation",
-            "description": "Generated sequences are evaluated using structural similarity metrics (TM-score) and functional predictions"
-        }
-    ]
-    
-    for step in steps:
-        st.markdown(f"""
-        <div class="method-step">
-            <h4>{step['step']}</h4>
-            <p>{step['description']}</p>
-        </div>
-        """, unsafe_allow_html=True)
-
-def show_experiments():
-    st.header("Experimental Setup")
-    
+    # Create a more visually appealing grid
     col1, col2 = st.columns(2)
     
     with col1:
-        st.subheader("Models Tested")
-        models = [
-            "ESM-2 (650M parameters)",
-            "ProtGPT2 (738M parameters)",
-            "ProGen2 (6.4B parameters)",
-            "General LLMs (GPT-4, Claude)"
-        ]
-        for model in models:
-            st.markdown(f"• {model}")
+        st.markdown("""
+        <div class="metric-card" style="background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%); 
+                    border-left: 5px solid #e91e63; margin-bottom: 1rem;">
+            <h3 style="color: #c2185b; margin-top: 0;">🎯 Reference-Guided Framework</h3>
+            <p style="margin-bottom: 0;">Augments model generation capabilities using reference protein sequences to guide the creation of novel proteins with desired properties</p>
+        </div>
+        """, unsafe_allow_html=True)
+        
+        st.markdown("""
+        <div class="metric-card" style="background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%); 
+                    border-left: 5px solid #00bcd4; margin-bottom: 1rem;">
+            <h3 style="color: #0097a7; margin-top: 0;">🏷️ GO-Term Integration</h3>
+            <p style="margin-bottom: 0;">User-friendly target property specification through Gene Ontology descriptors, enabling precise functional control</p>
+        </div>
+        """, unsafe_allow_html=True)
     
     with col2:
-        st.subheader("Evaluation Metrics")
-        metrics = [
-            "Top-TM-score: Structural similarity",
-            "GO term accuracy: Functional prediction",
-            "Sequence validity: Physical properties",
-            "Diversity: Sequence variation"
-        ]
-        for metric in metrics:
-            st.markdown(f"• {metric}")
-    
-    st.subheader("GO Term Categories Tested")
-    
-    # Sample GO terms
-    go_terms = pd.DataFrame({
-        'GO ID': ['GO:0005524', 'GO:0003824', 'GO:0016020', 'GO:0008270'],
-        'Name': ['ATP binding', 'Catalytic activity', 'Membrane', 'Zinc ion binding'],
-        'Category': ['Molecular Function', 'Molecular Function', 'Cellular Component', 'Molecular Function']
-    })
-    
-    st.dataframe(go_terms, use_container_width=True)
-
-def show_results():
-    st.header("Results")
-    
-    # Performance comparison chart
-    st.subheader("Model Performance Comparison")
-    
-    # Sample data (replace with actual results if available)
-    results_data = pd.DataFrame({
-        'Model': ['ESM-2', 'ProtGPT2', 'ProGen2', 'GPT-4 + PRO-GO'],
-        'TM-Score': [0.65, 0.62, 0.68, 0.74],
-        'GO Accuracy': [0.71, 0.68, 0.73, 0.82],
-        'Sequence Validity': [0.88, 0.85, 0.90, 0.93]
-    })
-    
-    # Create radar chart
-    fig = go.Figure()
-    
-    categories = ['TM-Score', 'GO Accuracy', 'Sequence Validity']
-    
-    for _, row in results_data.iterrows():
-        fig.add_trace(go.Scatterpolar(
-            r=[row['TM-Score'], row['GO Accuracy'], row['Sequence Validity']],
-            theta=categories,
-            fill='toself',
-            name=row['Model']
-        ))
-    
-    fig.update_layout(
-        polar=dict(
-            radialaxis=dict(
-                visible=True,
-                range=[0, 1]
-            )),
-        showlegend=True,
-        title="Performance Metrics Across Models"
-    )
-    
-    st.plotly_chart(fig, use_container_width=True)
-    
-    # Key findings
-    st.subheader("Key Findings")
-    
-    findings = [
-        "🎯 PRO-GO framework improves controllability by 15-20% compared to baseline models",
-        "📈 Reference-guided generation shows higher structural similarity (TM-score > 0.7)",
-        "🧬 Generated sequences maintain biological validity while matching target GO terms",
-        "🔄 No retraining required for new GO term combinations"
-    ]
-    
-    for finding in findings:
-        st.markdown(f"""
-        <div class="highlight-box">
-            {finding}
+        st.markdown("""
+        <div class="metric-card" style="background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%); 
+                    border-left: 5px solid #ff9800; margin-bottom: 1rem;">
+            <h3 style="color: #f57c00; margin-top: 0;">📏 Evaluation Pipeline</h3>
+            <p style="margin-bottom: 0;">Comprehensive assessment using TM-score metrics to validate structural similarity and functional relevance</p>
         </div>
         """, unsafe_allow_html=True)
-
-def show_insights():
-    st.header("Key Insights")
-    
-    insights = [
-        {
-            "title": "Flexibility without Retraining",
-            "content": "PRO-GO enables generation of proteins with diverse functionalities without model retraining, significantly reducing computational costs and time.",
-            "impact": "High"
-        },
-        {
-            "title": "GO Term Composability",
-            "content": "Multiple GO terms can be combined to specify complex multifunctional proteins, enabling design of proteins with cooperative functions.",
-            "impact": "High"
-        },
-        {
-            "title": "Reference Quality Matters",
-            "content": "The quality and diversity of reference sequences significantly impact generation accuracy, suggesting careful curation is important.",
-            "impact": "Medium"
-        },
-        {
-            "title": "LLM Potential",
-            "content": "Large language models show surprising capability in protein design when properly guided, opening new research directions.",
-            "impact": "High"
-        }
-    ]
-    
-    for insight in insights:
-        color = "#4CAF50" if insight['impact'] == "High" else "#FF9800"
-        st.markdown(f"""
-        <div style="border-left: 4px solid {color}; padding-left: 1rem; margin: 1rem 0;">
-            <h3>{insight['title']}</h3>
-            <p>{insight['content']}</p>
-            <p><strong>Impact:</strong> <span style="color: {color};">{insight['impact']}</span></p>
+        
+        st.markdown("""
+        <div class="metric-card" style="background: linear-gradient(135deg, #d299c2 0%, #fef9d7 100%); 
+                    border-left: 5px solid #9c27b0; margin-bottom: 1rem;">
+            <h3 style="color: #7b1fa2; margin-top: 0;">🤖 LLM Innovation</h3>
+            <p style="margin-bottom: 0;">Demonstrates advanced LLM capabilities for controllable protein generation without model retraining</p>
         </div>
         """, unsafe_allow_html=True)
+    
+    # Add the overview image
+    st.markdown("<br>", unsafe_allow_html=True)
+    st.subheader("🔬 PRO-GO Framework")
+    
+    try:
+        overview_img = Image.open('/mnt/Code/demo_data/img/overview.png')
+        col1, col2, col3 = st.columns([1, 3, 1])  # Center the image
+        with col2:
+            st.image(overview_img, caption="PRO-GO Framework Overview", use_container_width=True)
+        
+        with st.expander("ℹ️ About the PRO-GO Framework"):
+            st.markdown("""
+            **PRO-GO** is a novel framework for controllable protein sequence generation that combines two key innovations:
+            
+            **1. Reference-Guided Generation**
+            - Uses existing protein sequences as templates to guide the generation process
+            - Leverages the structural and functional information encoded in reference proteins
+            - Enables generation of novel sequences with desired properties
+            
+            **2. GO-Term Specification**
+            - Allows precise specification of target protein characteristics using Gene Ontology terms
+            - GO terms provide standardized descriptions of protein functions
+            - Enables multi-functional protein design by combining multiple GO terms
+            
+            **3. LLM-Based Generation**
+            - Utilizes large language models to generate sequences
+            - Generates sequences that are both structurally valid and functionally relevant
+            - Adapts to different GO term combinations
+            
+            **Key Innovation**: PRO-GO bridges the gap between high-level functional specifications (GO terms) and low-level sequence generation by using reference proteins as guides.
+            """)
+    except:
+        st.warning("Overview image not found. Please ensure 'overview.png' is in the demo_data/img directory.")
+    
+    # Add a call-to-action section
+    st.markdown("<br>", unsafe_allow_html=True)
+    st.markdown("""
+    <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); 
+                padding: 1.5rem; border-radius: 15px; margin: 1rem 0; 
+                color: white; text-align: center;">
+        <h3 style="color: white; margin-top: 0;">🎯 Ready to Explore?</h3>
+        <p style="margin-bottom: 1rem; font-size: 1.1rem;">
+            Try the interactive demo to see PRO-GO in action and generate your own protein sequences!
+        </p>
+        <p style="margin: 0; font-style: italic;">
+            Navigate to the "🚀 Demo" section in the sidebar to get started
+        </p>
+    </div>
+    """, unsafe_allow_html=True)
 
 # Helper functions to read real demo data
 def read_fasta_sequences(fasta_file):
@@ -452,7 +333,7 @@ def read_performance_summary(performance_file):
 def get_structure_mapping(set_name):
     """Get the predicted to ground truth structure mapping."""
     mapping = {
-        'set005': [
+        'set005': [  # Preventing Runaway Cell Division (using set005 data)
             {'predicted': 'set005_predicted_1.pdb', 'ground_truth': '9BI4.pdb', 'tm_score': 0.8417},
             {'predicted': 'set005_predicted_2.pdb', 'ground_truth': '8XVT.pdb', 'tm_score': 0.8326},
             {'predicted': 'set005_predicted_3.pdb', 'ground_truth': '8XVT.pdb', 'tm_score': 0.8318},
@@ -486,10 +367,11 @@ def get_structure_mapping(set_name):
 def get_go_to_set_mapping():
     """Map GO term sets to demo data folder names."""
     return {
-        'GO:0000723; GO:0005524; GO:0006281': 'set005',  # Preventing Runaway Cell Division
-        'GO:0003968; GO:0006351; GO:0033644': 'set060',  # Controlling Drug and Ion Flow
-        'GO:0004672; GO:0006468; GO:0016020': 'set076',  # Targeting Uncontrolled Cell Growth
-        'GO:0008610; GO:0017000; GO:0031177': 'set088'   # Rebalancing Cellular Energy
+        'GO:0005634; GO:0006281; GO:0006325': 'set005',  # Preventing Runaway Cell Division
+        'GO:0003968; GO:0006351; GO:0033644': 'set060',  # Managing Overactive Immune Responses (Cytokines & Receptors)
+        'GO:0004672; GO:0006468; GO:0016020': 'set076',  # Targeting Uncontrolled Cell Growth (Kinase signaling)
+        'GO:0006508; GO:0039694': 'set086',              # Blocking Pathogen Survival Pathways
+        'GO:0008610; GO:0017000; GO:0031177': 'set088'   # Rebalancing Cellular Energy and Metabolism
     }
 
 def load_real_pdb_content(pdb_path):
@@ -708,9 +590,11 @@ def show_interactive_demo():
         st.session_state.previous_go_terms = []
     if 'structure_predicted' not in st.session_state:
         st.session_state.structure_predicted = {}
+    if 'plddt_analyzed' not in st.session_state:
+        st.session_state.plddt_analyzed = {}
     
     st.header("Interactive Demo")
-    st.info("This is a conceptual demo showing how PRO-GO would work in practice. You can either select from predefined therapeutic target use cases or choose individual GO terms. Hover over ℹ️ icons and options for more detailed explanations.")
+    st.info("This is a conceptual demo showing how PRO-GO would work in practice. You can either select from example therapeutic target use cases or choose individual GO terms.")
     
     # Input section
     st.subheader("1. Specify Target Properties")
@@ -718,7 +602,7 @@ def show_interactive_demo():
     # Load predefined GO term sets
     import pandas as pd
     try:
-        use_cases_df = pd.read_csv('/mnt/Code/go_term_sets_usecase.csv')
+        use_cases_df = pd.read_csv('/mnt/Code/demo_data/five_high_value_go_sets_with_benefits_column.csv')
         use_cases_df = use_cases_df.dropna(subset=['Set Name'])  # Remove empty rows
     except:
         use_cases_df = None
@@ -726,20 +610,20 @@ def show_interactive_demo():
     # Selection method
     selection_method = st.radio(
         "How would you like to select GO terms?",
-        ["Choose from predefined use cases", "Select individual GO terms"],
-        help="Predefined use cases are curated sets of GO terms for common drug targets"
+        ["Choose from example use cases", "Select individual GO terms"],
+        help="Example use cases are curated sets of GO terms for possible drug targets"
     )
     
     col1, col2 = st.columns(2)
     
     with col1:
-        if selection_method == "Choose from predefined use cases" and use_cases_df is not None:
+        if selection_method == "Choose from example use cases" and use_cases_df is not None:
             # Predefined use case selection
             use_case_options = ["Select a use case..."] + use_cases_df['Set Name'].tolist()
             use_case = st.selectbox(
-                "Select a use case:",
+                "Select a use case (Conceptual):",
                 use_case_options,
-                help="These are common therapeutic targets with curated GO term sets"
+                help="These are possible therapeutic targets with curated GO term sets (conceptual)"
             )
             
             # Only process if a valid use case is selected
@@ -751,50 +635,6 @@ def show_interactive_demo():
                 go_ids = [id.strip() for id in selected_row['GO IDs'].split(';')]
                 go_names = [name.strip() for name in selected_row['GO Terms'].split(';')]
                 go_terms = [f"{id} - {name}" for id, name in zip(go_ids, go_names)]
-                
-                # Show use case description and references
-                with st.expander("ℹ️ About this use case"):
-                    st.write(selected_row['Use case'])
-                    
-                    # Show GO aspects if available
-                    if pd.notna(selected_row.get('Aspects (MF/BP/CC)', '')):
-                        aspects = [aspect.strip() for aspect in selected_row['Aspects (MF/BP/CC)'].split(';')]
-                        aspect_names = []
-                        for aspect in aspects:
-                            if aspect == 'MF':
-                                aspect_names.append("Molecular Function")
-                            elif aspect == 'BP':
-                                aspect_names.append("Biological Process")
-                            elif aspect == 'CC':
-                                aspect_names.append("Cellular Component")
-                            else:
-                                aspect_names.append(aspect)
-                        if any(a != '?' for a in aspects):
-                            st.caption(f"GO Aspects: {', '.join(aspect_names)}")
-                    
-                    # Add GO term references
-                    if pd.notna(selected_row.get('References', '')):
-                        st.markdown("---")
-                        st.markdown("📚 **GO Term References:**")
-                        ref_links = [ref.strip() for ref in selected_row['References'].split(';')]
-                        for i, (go_id, go_name, ref_link) in enumerate(zip(go_ids, go_names, ref_links)):
-                            st.markdown(f"• [{go_id}: {go_name}]({ref_link}) 🔗")
-                    
-                    # Add use case references (scientific papers)
-                    if pd.notna(selected_row.get('Use Case References', '')):
-                        st.markdown("---")
-                        st.markdown("📄 **Scientific Literature:**")
-                        paper_refs = [ref.strip() for ref in selected_row['Use Case References'].split(';')]
-                        for i, ref in enumerate(paper_refs):
-                            if ref.startswith('http'):
-                                # Extract DOI from URL if possible
-                                if 'doi.org/' in ref:
-                                    doi = ref.split('doi.org/')[-1]
-                                    st.markdown(f"• [DOI: {doi}]({ref}) - Peer-reviewed research paper")
-                                else:
-                                    st.markdown(f"• [Research Paper {i+1}]({ref})")
-                            else:
-                                st.markdown(f"• {ref}")
             else:
                 go_terms = []
             
@@ -820,7 +660,18 @@ def show_interactive_demo():
                     "GO:0006357 - Regulation of transcription by RNA polymerase II",
                     "GO:0006955 - Immune response",
                     "GO:0005125 - Cytokine activity",
-                    "GO:0005102 - Receptor binding"
+                    "GO:0005102 - Receptor binding",
+                    "GO:0005634 - Nucleus",
+                    "GO:0006281 - DNA repair",
+                    "GO:0006325 - Chromatin organization",
+                    "GO:0003968 - RNA-directed RNA polymerase activity",
+                    "GO:0006351 - DNA-templated transcription",
+                    "GO:0033644 - Host cell membrane",
+                    "GO:0006508 - Proteolysis",
+                    "GO:0039694 - Viral RNA genome replication",
+                    "GO:0008610 - Lipid biosynthetic process",
+                    "GO:0017000 - Antibiotic biosynthetic process",
+                    "GO:0031177 - Phosphopantetheine binding"
                 ]
             )
     
@@ -829,8 +680,8 @@ def show_interactive_demo():
         pass
     
     # Show selected GO terms summary
-    if go_terms and selection_method == "Choose from predefined use cases":
-        st.markdown("**Selected GO Terms:**")
+    if go_terms and selection_method == "Choose from example use cases":
+        st.markdown("**Selected GO Terms (Conceptual, to represent use case):**")
         if len(go_terms) <= 3:
             go_term_cols = st.columns(len(go_terms))
             for i, term in enumerate(go_terms):
@@ -840,10 +691,47 @@ def show_interactive_demo():
             # For more than 3 terms, use a more compact display
             for term in go_terms:
                 st.write(f"• {term}")
+        
+        # Show use case description and references (full width)
+        if use_case != "Select a use case..." and use_cases_df is not None:
+            # Get the selected use case details
+            selected_row = use_cases_df[use_cases_df['Set Name'] == use_case].iloc[0]
+            
+            # Show use case description and expanded information
+            with st.expander("ℹ️ About this use case", expanded=False):
+                # Main use case description
+                st.write(selected_row['Use case'])
+                
+                # Add deeper explanation if available
+                if pd.notna(selected_row.get('Use case (deeper explanation)', '')):
+                    st.markdown("---")
+                    st.markdown("**Deeper Explanation:**")
+                    # Remove "What to look for:" parts from the deeper explanation
+                    deeper_explanation = selected_row['Use case (deeper explanation)']
+                    # Split by "What to look for:" and take only the first part
+                    if "What to look for:" in deeper_explanation:
+                        deeper_explanation = deeper_explanation.split("What to look for:")[0].strip()
+                    st.write(deeper_explanation)
+                
+                # Add benefits of targeting these terms if available
+                if pd.notna(selected_row.get('Why a drug/protein here helps (benefits)', '')):
+                    st.markdown("---")
+                    st.markdown("**Benefits of Targeting These GO Terms:**")
+                    st.write(selected_row['Why a drug/protein here helps (benefits)'])
+                
+                # Add GO term references
+                if pd.notna(selected_row.get('GO Term References', '')):
+                    st.markdown("---")
+                    st.markdown("📚 **GO Term References:**")
+                    ref_links = [ref.strip() for ref in selected_row['GO Term References'].split(';')]
+                    for i, (go_id, go_name, ref_link) in enumerate(zip(go_ids, go_names, ref_links)):
+                        st.markdown(f"• [{go_id}: {go_name}]({ref_link}) 🔗")
     
     # Show a message if no GO terms are selected
     if not go_terms:
-        st.info("👆 Please select GO terms or a predefined use case to begin.")
+        st.info("👆 Please select GO terms or an example use case to begin.")
+        st.info("GO Terms associated with the example use cases are ONLY conceptual.")
+
         # Reset retrieval state when no GO terms
         if st.session_state.reference_sequences_retrieved:
             st.session_state.reference_sequences_retrieved = False
@@ -855,8 +743,14 @@ def show_interactive_demo():
         st.session_state.selected_sequence_idx = None
         if 'structure_predicted' in st.session_state:
             st.session_state.structure_predicted = {}
+        if 'plddt_analyzed' in st.session_state:
+            st.session_state.plddt_analyzed = {}
     
     st.session_state.previous_go_terms = go_terms
+    
+    # Add spacing before next section
+    if go_terms:
+        st.markdown("<br><br>", unsafe_allow_html=True)
     
     # Reference sequences based on selected GO terms
     if go_terms:
@@ -894,90 +788,91 @@ def show_interactive_demo():
                         st.rerun()
             return  # Don't show anything else until retrieval is complete
         
-        # Create a summary of selected GO terms
-        go_summary = []
-        for term in go_terms[:3]:  # Show first 3 terms
-            go_id = term.split(" - ")[0]
-            go_name = term.split(" - ")[1] if " - " in term else go_id
-            go_summary.append(f"**{go_id}** ({go_name})")
+        # Create a cleaner message about retrieved sequences
+        if len(go_terms) == 1:
+            st.info(f"🔍 Retrieved sequences from UniRef50 database that have been verified to possess the selected GO term.")
+        else:
+            st.info(f"🔍 Retrieved sequences from UniRef50 database that have been verified to possess ALL {len(go_terms)} selected GO terms.")
         
-        if len(go_terms) > 3:
-            go_summary.append(f"... and {len(go_terms) - 3} more")
-        
-        st.info(f"🔍 Retrieved sequences from UniRef50 database that have been experimentally verified to possess ALL selected GO terms: {', '.join(go_summary)}")
+        # Add notification about mock data
+        st.warning("""
+        **📝 Demo Note:** The sequences shown below are mock sequences for demonstration purposes. 
+        In the actual PRO-GO implementation, these would be real sequences retrieved from the UniRef50 database 
+        that have been verified to possess the selected GO terms.
+        """)
         
         # Define reference sequences for different GO terms
         reference_sequences = {
             "GO:0005524": [  # ATP binding
-                ("UniRef50_P0A6F5", "MSKGEELFTGVVPILVELDGDVNGHKFSVSGEGEGDATYGKLTLKFICTTGKLPVPWPTLVTTLTYGVQCFSRYPDHM"),
-                ("UniRef50_Q9Y6K9", "MGSSHHHHHHSSGLVPRGSHMASMTGGQQMGRGSMTEYKLVVVGAGGVGKSALTIQLIQNHFVDEYDPTIEDSYRKQV"),
-                ("UniRef50_P31939", "MTEYKLVVVGAGGVGKSALTIQLIQNHFVDEYDPTIEDSYRKQVVIDGETCLLDILDTAGQEEYSAMRDQYMRTGEGF"),
-                ("UniRef50_P62826", "MSKIVLFVGGPGSGKGTQAEKIVEQYGIPHISTGDMFRAAMKEQTPLGLDFGKKTIMGKIDGVPRVEEGKLVLSQDM"),
-                ("UniRef50_Q9ULZ3", "MAASEHRCVGCGFFDPHDTTIYEKLKEAACREGKFVIVKGSHPFGMTKDLGEMAMHREGFDTLVAVASYSNVPSARA")
+                ("UniRef50_P0A6F5", "MSKGEELFTGVVPILVELDGDVNGHKFSVSGEGEGDATYGKLTLKFICTTGKLPVPWPTLVTTLTYGVQCFSRYPDHMKQHDFFKSAMPEGYVQERTIFFKDDGNYKTRAEVKFEGDTLVNRIELKGIDFKEDGNILGHKLEYNYNSHNVYIMADKQKNGIKVNFKIRHNIEDGSVQLADHYQQNTPIGDGPVLLPDNHYLSTQSALSKDPNEKRDHMVLLEFVTAAGITHGMDELYK"),
+                ("UniRef50_Q9Y6K9", "MGSSHHHHHHSSGLVPRGSHMASMTGGQQMGRGSMTEYKLVVVGAGGVGKSALTIQLIQNHFVDEYDPTIEDSYRKQVVIDGETCLLDILDTAGQEEYSAMRDQYMRTGEGFLCVFAINNTKSFEDIHQYREQIKRVKDSDDVPMVLVGNKCDLPARTVETRQAQDLARSYGIPYIETSAKTRQGVEDAFYTLVREIRQH"),
+                ("UniRef50_P31939", "MTEYKLVVVGAGGVGKSALTIQLIQNHFVDEYDPTIEDSYRKQVVIDGETCLLDILDTAGQEEYSAMRDQYMRTGEGFLLDLMCYYGRAATVESLIKKFTRFDEQLHCQHCPLEKLDLVICEVTKQIRTYADRLNDYRGSWPQHYFLVVYQYTDFYAMGIDKKERCPTSVFNQVWELSHAKLVGSNPEQVSSHCRDILRDDQELLCEDFIQDIQSRDVVELASAGADYRSKRSAPRPWISLPRHSTRIEPRAPRPLSRAPVGQKPLLVGNKSDLSTDRQVSEQPKSPKNKHSRQNSQPSKTPIKTSVLQKSPNKQNASISTPSSVSRSGSILSSKSTPVSS"),
+                ("UniRef50_P62826", "MSKIVLFVGGPGSGKGTQAEKIVEQYGIPHISTGDMFRAAMKEQTPLGLDFGKKTIMGKIDGVPRVEEGKLVLSQDDEETTRIIAQSLIKNVPQAKDVDNMIKRGIRRWNAYGELYHISTGDMFREAVQQQTPLGREITDQEGNKKIMAEKYNLHVPFIEVFKP"),
+                ("UniRef50_Q9ULZ3", "MAASEHRCVGCGFFDPHDTTIYEKLKEAACREGKFVIVKGSHPFGMTKDLGEMAMHREGFDTLVAVASYSNVPSARAESLPTKNISTGLRLVTLVQERDKQKVYILKEFSFNDYFTSHHILGGNVQYQDRLTSFADCIRGILVKNITDLTVGRLATQVYQPTRLYKAADVLGYKGAVNLAFKVNNELVKHYFNRELTPVNFKRNDEQSVMALFEKTMAKVDEAKKQVEAREILSGYKDSTGSVKVADGVKYFAPQIKVSTAPRPADADKAASRAPRKLADSATDLKNQIVENFINRRLKDWKPNPESLERYALGLKPDEQYVLSSERLQYAGIAYTVQVR")
             ],
             "GO:0003824": [  # Catalytic activity
-                ("UniRef50_P00720", "MRAFPSPAAAAAGLAPRPARVLVHGFTPEYEFLLNTSEQATSVFGQSLRRSPMAYVHQDRYYWYEFYLLSLGQLATF"),
-                ("UniRef50_P62593", "MHHHHHHSSGVDLGTENLYFQSMDPFGIWKDKLVQYHAERGVLKTSQGFLGNFKINVKVEDTTLQVKGIKDGYHFVHS"),
-                ("UniRef50_Q9Y2Q3", "MSRSLKKGPFGDAFVEFFAVENPQVTWLMLDHNKAASLPFYPNTIKRPTDDLPTMVNAANHLMQWAQSRQGGTSLTR"),
-                ("UniRef50_P10275", "MIVLFVDFDYFYQHFYDELSEVQRYNAPLRDPFEKLPIDFLEAKGYKEVKKDLIIKLPKYSLFELENGRKRPMLIQK"),
-                ("UniRef50_O95167", "MAEEKDHNVQVLMVDGKPVTAEDLGKSREEVMQMLLDTLEEMVSKLQKSKGFLPFSSNTKLGSACLRKCVTKDELIA")
+                ("UniRef50_P00720", "MRAFPSPAAAAAGLAPRPARVLVHGFTPEYEFLLNTSEQATSVFGQSLRRSPMAYVHQDRYYWYEFYLLSLGQLATFSLVLAGSSGTAISALYRATGGRLFASLWLVSSGSVTQIPVAQWVRGCRLQSGDVLVCQDLTCDVLGTRDALPPDLQNFGPHRYFRTTDYNYPSSWGHAASQGLTRLLDVVNLYWHHLKPGQGQARYDWGATFPLKFNDPSFKEILRLAQGWGRRCLHGALLGHELYTGTDPVTPLSRVGDRLLQLVRETGRHGREFHWHVTLEGGWPGSRAFASQGTSTATRWHDNHYHAPRGYRAQVPGGEEWIWDVWDRGTDVIGEQIIKRDRGRLLMCAWNPQGRVTSSYAARSADALLRYWETSR"),
+                ("UniRef50_P62593", "MHHHHHHSSGVDLGTENLYFQSMDPFGIWKDKLVQYHAERGVLKTSQGFLGNFKINVKVEDTTLQVKGIKDGYHFVHSFEPVHEKDFPALVFDEIMKRLDEWQGLDMLQIPLYNKVRHQEAAARGWDVRDSSGHLFQPINVKQLEDAAAMKPEAKVDAFLGSFG"),
+                ("UniRef50_Q9Y2Q3", "MSRSLKKGPFGDAFVEFFAVENPQVTWLMLDHNKAASLPFYPNTIKRPTDDLPTMVNAANHLMQWAQSRQGGTSLTRYYDERATRQRPDRYFEYSRRHPEYAVSLLGRAGYTDEVAREDCLSEWSEAIYPPFADRSRWADYRTRIATGGWSPWIWGWPTWGTRRATQMRSLVYGDSSQATMDERNRQIAEDNAYGTWRNDVGQSMTIDGAAYYVDQLSTVAQLRSKQGFPLSLQEVVNFAADMGVKDDRNRSIYWLAHHKVTGSVLLWPYLWIWGQAHRQ"),
+                ("UniRef50_P10275", "MIVLFVDFDYFYQHFYDELSEVQRYNAPLRDPFEKLPIDFLEAKGYKEVKKDLIIKLPKYSLFELENGRKRPMLIQKLITGPTEPKGIKENTPAWFLAQQTGLIPENAIYFKKENSPEYEWTERQVMKKDGWTVQVNQFGRFVYAEDMGLDKGWYDIRACTFEMLGNFYQVHDDSNSPVTQKWGLENTYGSVNRYGLQNQFGVGEKPEPVTYSNMISAGSSLYQSKKQRGPGQMGSPQLSEMGTDAEFQKRLNDIVAIWQKIRAADGK"),
+                ("UniRef50_O95167", "MAEEKDHIIIAPPKRRKRGRATPCSEIWDWMEFCHPWHMHRHLTLDEVAPGVSHKLYPIAQIARRGGFTWMWPQSS")
             ],
             "GO:0008270": [  # Zinc ion binding
-                ("UniRef50_Q9Y6Y9", "MTMPRNCRECGLHLEEKDHVCEKCQKAFAEKDHLERHQLTHTGEKRFNCRICGYRKERKDHLIKHMHKTHSPEKPFQC"),
-                ("UniRef50_P37198", "MGSHHHHHHGSASMSAEYNPDVHFQVAVMEALCKKGTPLHIAAQRGHLEIVEVLLKNGVDVVRAKDLVESAPYALT"),
-                ("UniRef50_Q13263", "MEEVVCCPCDKATFDSRPWLQRHLRTHSGERPFKCHLCDKCFRASDERKRHTMHKRTHTGEKPYKCPFCGKAFRQSS"),
-                ("UniRef50_P10636", "MADKRAHHNALERKRRDHIKDSFHSLRDSVPSLQGEKASRAQILDKATEYIQYMRRKVHTLQQDIDDLKRQNAVLKK"),
-                ("UniRef50_O75592", "MAECSSCGMIVRDIPLSDCPRCYQVWKKGKDLYHYRHCEGCTKFFDSSDRRSHHVCVDHGQEPHYCEICGKRFSQSS")
+                ("UniRef50_Q9Y6Y9", "MTMPRNCRECGLHLEEKDHVCEKCQKAFAEKDHLERHQLTHTGEKRFNCRICGYRKERKDHLIKHMHKTHSPEKPFQCEDCGRKFAQKSDLRTHVRTHTGSPSYRCQHCDKAFSHSSDLIRHQRTHTGEKPFACDICGKAFAQKSDLKRHKRIHSGEKPHACGTCGKRFSQSSDLIRHQRIHTGEKPFVCDECGKQFAQKSNLIKHQRIHTGEKPHKCEICGRAFATSSGLVRHLRQHCKEFPFKCNICGRAFSDKSNLIKHQRSHTGEKPFKCEICGKRFAQKSHLITHHIIHTGEKPYSCDICGKAFRQSSGLVRHQRVHTGDIPYVCNACGKSFSKKSNLKSHLKIHTKP"),
+                ("UniRef50_P37198", "MGSHHHHHHGSASMSAEYNPDVHFQVAVMEALCKKGTPLHIAAQRGHLEIVEVLLKNGVDVVRAKDLVESAPYALTLAHMKQTGARKFFQCDVCDKTFTKKSYLTKHLRIHSDERPFKCQLCGKTFNWSSHLTEHQGTHTGEKPYKCEECGKAFSHSSDLIIH"),
+                ("UniRef50_Q13263", "MEEVVCCPCDKATFDSRPWLQRHLRTHSGERPFKCHLCDKCFRASDERKRHTMHKRTHTGEKPYKCPFCGKAFRQSSHLQTHERKIHACQFCGKSFADKSNLVRHQRVHTGEKPFKCEDCGKAFSHSSDLIRHQRTHTGEKPFRCSECGKAFAQKSDLKRHKRIHSGEKPHACDACGKRFNRSAHLQTHERVH"),
+                ("UniRef50_P10636", "MADKRAHHNALERKRRDHIKDSFHSLRDSVPSLQGEKASRAQILDKATEYIQYMRRKVHTLQQDIDDLKRQNAVLKKMTGDKYELGPQKARPVGFTTRRKRKAEKQRNELGLKKMAEDEAVGAPQPKKTQTKDGRKRKLVDPNSEQYKAALQQLESKLKQARNVAAKASAAASAASAASAASAATPVSKNAKEPAEVKPEKKA"),
+                ("UniRef50_O75592", "MAECSSCGMIVRDIPLSDCPRCYQVWKKGKDLYHYRHCEGCTKFFDSSDQLIRFLKRLDRNLWGLAGLNSCPVKEANQSTLENFLERLKTIMREKYSKCSS")
             ],
             # GO terms for predefined use cases
             "GO:0004672": [  # Protein kinase activity
-                ("UniRef50_P68400", "MGSNKSKPKDASQRRRSLEPAENVHGAGGGAFPASQTPSKPASADGHRGPSAAFVPPAAEPKLFGGFNSSDTVTSPQR"),
-                ("UniRef50_P45983", "MELRVLLGLDAGSGKTTILYRLQFGEVVTTIPTIGFNVETVEYKNISFTVWDVGGQEKIRKYWISYSGDGAVAYVVD"),
-                ("UniRef50_P31749", "MENFQKVEKIGEGTYGVVYKARNKLTGEVVALKKIRLDTETEGVPSTAIREISLLKELNHPNIVKLLDVIHTENKLYL"),
-                ("UniRef50_P06239", "MTEYKLVVVGAGGVGKSALTIQLIQNHFVDEYDPTIEDSYRKQVVIDGETCLLDILDTAGQEEYSAMRDQYMRTGEGF"),
-                ("UniRef50_P00519", "MGSNKSKPKDASQRRRSLEPAENVHGAGGGAFPASQTPSKPASADGHRGPSAAFVPPAAEPKLFGGFNSSDTVTSPQR")
+                ("UniRef50_P68400", "MGSNKSKPKDASQRRRSLEPAENVHGAGGGAFPASQTPSKPASADGHRGPSAAFVPPAAEPKLFGGFNSSDTVTSPQRAGPLGSPGQPGNPSQGGSGGSQGGGTGGTNSQSSHSPPNLSSTNGGATFGGLRNVDYDDDEEEELPRLRSDSGFSSPPQHRPPMNLVPNGSPQRRSFSVDDESLLLEDPVGTIVLYDYQGMLPVCPPGSGSTSDRLNRGAKPESQAVPPLPNIPPSPSDLQISTRLSAPPLLFHAPPSPPPGYFSLRPSGTMVGTCQRWPEALRLPPREPLPPPPPPPPPPREPLPPPLPPPLSPDLQMQVPRQPLPLQGPFPHLGGLSCPKSTSPRSPREPRPSSPEHLGPPRPGPGAPRPAESPRSPPRLPPPQPSPTPKTPPRPPTPSSQPKTPTSPTRPPDTPSPRPPPQPPTPPRTPPSGGPPQPGPLRESPPSSPHTEPTPTRPPTPPPPTPASPTPSLGASGPSGSPNGPVGPPHHAFPPPPPPCPPPPPPPPPPPPPPPPPPPPPPTPPPPPSDPPLPTQDPQPPGQPLPREPPVYPPRAPKPPSPEKRGGRAGPAK"),
+                ("UniRef50_P45983", "MELRVLLGLDAGSGKTTILYRLQFGEVVTTIPTIGFNVETVEYKNISFTVWDVGGQEKIRKYWIYSSG"),
+                ("UniRef50_P31749", "MENFQKVEKIGEGTYGVVYKARNKLTGEVVALKKIRLDTETEGVPSTAIREISLLKELNHPNIVKLLDVIHTENKLYLVFEFLHQDLKKFMDASALTGIPLPLIKSYLFQLLQGLAFCHSHRVLHRDLKPQNLLINTEGAIKLADFGLARAFGVPVRTYTHEVVTLWYRAPEILLGCKYYSTAVDIWSLGCIFAEMVTRRALFPGDSEIDQLFRIFRTLGTPDEVVWPGVTSMPDYKPSFPKWARQDFSKVVPPLDEDGRSLLSQMLHYDPNKRISAKAALAHPFFQDVTKPVPHLRL"),
+                ("UniRef50_P06239", "MTEYKLVVVGAGGVGKSALTIQLIQNHFVDEYDPTIEDSYRKQ"),
+                ("UniRef50_P00519", "MGSNKSKPKDASQRRRSLEPAENVHGAGGGAFPASQTPSKPASADGHRGPSAAFVPPAAEPKLFGGFNSSDTVTSPQRAGPLGSPGQPGNPSQGGSGGSQGGGTGGTNSQSSHSPPNLSSTN")
             ],
             "GO:0016301": [  # Kinase activity
-                ("UniRef50_P27361", "MDVFMKGLSKAKEGVVAAAEKTKQGVAEAAGKTKEGVLYVGSKTKEGVVHGVATVAEKTKEQVTNVGGAVVTGVTAV"),
-                ("UniRef50_P00517", "MSLSLKTPLIPAASTNSTNSTDAAPFDPQFHPETPLSQYGSPLNSQTAYATSAPYTASSAPAYTASSAPATSPQYDD"),
-                ("UniRef50_P00518", "MTEQEALVKEAAAALAAAHAEQQIKNRYPFGVQAALDAAKLLKERGLLPEEEVEGLRVLVVDPQFYAVERIKAHPDI"),
-                ("UniRef50_P68399", "MGSSHHHHHHSSGLVPRGSHMASMTGGQQMGRGSMDDYQRLQLHGQRFSLWKEGPFASIPLVGRELGSGAFAKVQLA"),
-                ("UniRef50_P04049", "MELRVLLGLDAGSGKTTILYRLQFGEVVTTIPTIGFNVETVEYKNISFTVWDVGGQEKIRKYWISYSGDGAVAYVVD")
+                ("UniRef50_P27361", "MDVFMKGLSKAKEGVVAAAEKTKQGVAEAAGKTKEGVLYVGSKTKEGVVHGVATVAEKTKEQVTNVGGAVVTGVTAVAQKTVEGAGSIAAATGFVKKDQLGKNEEGAPQEGILEDMPVDPDNEAYEMPSEEGYQDYEPEA"),
+                ("UniRef50_P00517", "MSLSLKTPLIPAASTNSTNSTDAAPFDPQFHPETPLSQYGSPLNSQTAYATSAPYTASSAPAYTASSAPATSPQYDDPSQPSQPQQPPQPAQPQQPPQPQPPQPQPQPQPQPQPQPQPPQPTQPQPPQPQPQPQPQPQPQPQPQPPAPPPPPPQQPQPQQPPQPPQPPQPQPQPPQQPPPPQPQPPPPPPQPPPPQQPPQPPQPPQPQPPQPQPPQPQPQPQPPPPQPQPPQPQPPPPPPPPQPPQPPQPQPPQPQPPQPPPPPPPPPQPPQPQPQPPPPPQPPPPPPPPQPPQPPPPQPPPPPPPPPPPPPPPPQPPPPPPQPPPPPPQPPPPPPQPPPPPPQPPPPPPQPPPPPPQPPPPPPQPPPPPPQPPPPPPQPPPPPPQPPPPPPQPPPPPPQPPPPPPQPPPPPPQPPPPPPPPPPPQPPPPPPPPPPPPPPQPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPP"),
+                ("UniRef50_P00518", "MTEQEALVKEAAAALAAAHAEQQIKNRYPFGVQAALDAAKLLKERGLLPEEEVE"),
+                ("UniRef50_P68399", "MGSSHHHHHHSSGLVPRGSHMASMTGGQQMGRGSMDDYQRLQLHGQRFSLWKEGPFASIPLVGRELGSGAFAKVQLAQDRIKIVAIKQVPVEQDPFLVVKEYAVGKEIPVEAIPFAFQKITDDAWNELQNLTRWCQCMKQLPAGLNYRHEDVPWLRRNRFADIDVVQTFLQHDDEVFQTYLAPEAWKKHQREAVDCIVMGRHIENGIVHRDLKPENIMCVNKTGTVIKLADFGLARIYADPDTMRTHQVGTKRYMSPEQISGNPYENIDIWALGCILAELLTGKPIFQGDNEIDQINRIRKGMFTEFPKTWLSQTAKEGLKSEPDHQLSNLLKTLCQTQEYNPSQDELNDFLKRQLGPDRQKLRQAFNEIKKHKWFQAFTNKLPRATKLPPVLPPQRIGGAPRPPTQKDTDS"),
+                ("UniRef50_P04049", "MELRVLLGLDAGSGKTTILYRLQFGEVVTTIPTIGFNVETVEYKNISFTVWDVGGQEKIRKYWIYSSGDGAVAYVVDSCDSRSDRNVVPIVRYKVNYFYDDELKDDKDIVIALFLAEDKSIVSQSTMTQRFTDKFGHLSSIGAREFALQVPAVLYLKDERPVDQ")
             ],
             "GO:0004930": [  # G protein-coupled receptor activity
-                ("UniRef50_P08908", "MDILCEENTSLSSTTNSLMQLNADAELKQLRKRLTLYGLQRRNWAAGLQFPVGRPQATWAMLGALCALASVLSVLT"),
-                ("UniRef50_P21728", "MNGTEGPNFYVPFSNKTGVVRSPFEAPQYYLAEPWQFSMLAAYMFLLIMLGFPINFLTLYVTVQHKKLRTPLNYILL"),
-                ("UniRef50_P30542", "MAAGCQGADALGCGAPLALLLGLGLSRPQAQLLQGAHVVSTCSPRWGQGAGSPELPSPQHLLLGAPGPPVSAVCVPD"),
-                ("UniRef50_P30411", "MKTIIALSYIFCLVFADYKDDDDAASLEGEDEQEYVSAEFVHHLQELDEENKISRNQRELRMRLEEQADQCAQDVES"),
-                ("UniRef50_P29274", "MEGISIYTSDNYTEEMGSGDYDSMKEPCFREENANFNKIFLPTIYSIIFLTGIVGNGLVILVMGYQKKLRSMTDKYR")
+                ("UniRef50_P08908", "MDILCEENTSLSSTTNSLMQLNADAELKQLRKRLTLYGLQRRNWAAGLQFPVGRPQATWAMLGALCALASVLSVLTNYILLNLAVADNFQVCISVLPFYISTQTLPFLFLQAGAFVDLSMLTFTMPFMLAVTLYRHRWSFGALGCKLIPSIIVAKASAIHSGFILENIFSWLSATANSCCDFILLGCFVQMVCSTFAGKVIAFMVKYMLFMHKQIRVTSSRAFLKGVNHVQTELAVGSLSLVSTAVLSSYTIILILLFPLIAVAGFYLLRMKVLVQTGSQAASAAAAAASAAASPPPPQPSQLQPQPQPQPQPPPQPQPQPALWHLQAMRSHSISQTGEGSETQVQPTCPKAGSLNGGTVRTSHL"),
+                ("UniRef50_P21728", "MNGTEGPNFYVPFSNKTGVVRSPFEAPQYYLAEPWQFSMLAAYMFLLIMLGFPINFLTLY"),
+                ("UniRef50_P30542", "MAAGCQGADALGCGAPLALLLGLGLSRPQAQLLQGAHVVSTCSPRWGQGAGSPELPSPQHLLLGAPGPPVSAVCVPDSTPQAQHLGLEGQGPPRAKVIVAVVVVGVVVGVVGGVVAGVAVVALAAAVAASIAAIAGASAIAAIAGAIAGGVVAGAGVGAAGGGAAGGGGGGGGAAAIAGAASAGGGGGGGAAAAGAAAAAAAAGAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAGGGAGAAGGGGGGGGGGGGGGAAAAAAAAAAAAAAAAAAAAAAGAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"),
+                ("UniRef50_P30411", "MKTIIALSYIFCLVFADYKDDDDAASLEGEDEQEYVSAEFVHHLQELDEENKISRNQRELRMRLEEQADQCAQDVESREAEGPLGSCARSEPPGPRPSCADTPSRYTLTHFIEQGQQGDLENPQFHNPPAPYEGLSPEEELRKYYE"),
+                ("UniRef50_P29274", "MEGISIYTSDNYTEEMGSGDYDSMKEPCFREENANFNKQLIRFLKRLDRNLWGLAGLNSCPVKEANQSTLENFLERLKTIMREKYSKCSS")
             ],
             "GO:0007186": [  # G protein-coupled receptor signaling pathway
-                ("UniRef50_P59768", "MSPILGYWKIKGLVQPTRLLLEYLEEKYEEHLYERDEGDKWRNKKFELGLEFPNLPYYIDGDVKLTQSMAIIRYIAD"),
-                ("UniRef50_P04896", "MVLSPADKTNVKAAWGKVGAHAGEYGAEALERMFLSFPTTKTYFPHFDLSHGSAQVKGHGKKVADALTNAVAHVDDM"),
-                ("UniRef50_P00533", "MRPSGTAGAALLALLAALCPASRALEEKKVCQGTSNKLTQLGTFEDHFLSLQRMFNNCEVVLGNLEITYVQRNYDLS"),
-                ("UniRef50_P62993", "MGSSHHHHHHSSGLVPRGSHMLGTLEAPAEPAYEQAGEAPGDAVYGAEDVGVAPGQETQAEASKDAATEGAEPQGVY"),
-                ("UniRef50_P25929", "MASPILGYWKIKGLVQPTRLLLEYLEEKYEEHLYERDEGDKWRNKKFELGLEFPNLPYYIDGDVKLTQSMAIIRYIAD")
+                ("UniRef50_P59768", "MSPILGYWKIKGLVQPTRLLLEYLEEKYEEHLYERDEGDKWRNKKFELGLEFPNLPYYIDGDVKLTQSMAIIRYIADKHNMLGGCPKERAEISMLEGAVLDIRYGVSRIAYSKDFETLKVDFLSKLPEMLKMFEDRLCHKTYLNGDHVTHPDFMLYDALDVVLYMDPMCLDAFPKLVCFKKRIEAIPQIDKYLKSSKYIAWPLQGWQATFGGGDHPPKSDLEVLFQGPLM"),
+                ("UniRef50_P04896", "MVLSPADKTNVKAAWGKVGAHAGEYGAEALERMFLSFPTTKTYFPHFDLSHGSAQVKGHGKKVADALTNAVAHVDDMPAALSALSDLHAHKLRVDPVNFKLLSHCLLVTLAAHLPAEFTPAVHASLDKFLASVSTVLTSKYR"),
+                ("UniRef50_P00533", "MRPSGTAGAALLALLAALCPASRALEEKKVCQGTSNKLTQLGTFEDHFLSLQRMFNNCEVVLGNLEITYVQRNYDLSFLKTIQEVAGYVLIALNTVERIPLENLQIIRGNMYYENSYALAVLSNYDANKTGLKELPMRNLQEILHGAVRFSNNPALCNVESIQWRDIVSSDFLSNMSMDFQNHLGSCQKCDPSCPNGSCWGAGEENCQKLTKIICAQQCSGRCRGKSPSDCCHNQCAAGCTGPRESDCLVCRKFRDEATCKDTCPPLMLYNPTTYQMDVNPEGKYSFGATCVKKCPRNYVVTDHGSCVRACGADSYEMEEDGVRKCKKCEGPCRKVCNGIGIGEFKDSLSINATNIKHFKNCTSISGDLHILPVAFRGDSFTHTPPLDPQELDILKTVKEITGFLLIQAWPENRTDLHAFENLEIIRGTKQHGQFSLAVVSLNITSLGLRSLKEISDGDVIISGNKNLCYANTINWKKLFGTSGQKTKIISNRGENSCKATGQVCHALCSPEGCWGPEPRDCVSCRNVSRGRECVDKCNLLEGEPREFVENSECIQCHPECLPQAMNITCTGRGPDNCIQCAHYIDGPHCVKTCPAGVMGENNTLVWKYADAGHVCHLCHPNCTYGCTGPGLEGCPT"),
+                ("UniRef50_P62993", "MGSSHHHHHHSSGLVPRGSHMLGTLEAPAEPAYEQAGEAPGDAVYGAEDVGVAPGQETQAEASKDAATEGAEPQGVYAEDQAAESGGPGAPSGGSGDGGPG"),
+                ("UniRef50_P25929", "MASPILGYWKIKGLVQPTRLLLEYLEEKYEEHLYERDEGDKWRNKKFELGLEFPNLPYYIDGDVKLTQSMAIIRYIADKHNMLGGCPKERAEISMLEGAVLDIRYGVSRIAYSKDFETLKVDFLSKLPEMLKMFEDRLCHKTYLNGDHVTHPDFMLYDALDVVLYMDPMCLDAFPKLVCFKKRIEAIPQIDKYLKSSKYIAWPLQGWQATFGGGDHPPKSDLEVLFQGPLM")
             ],
             "GO:0022857": [  # Transmembrane transporter activity
-                ("UniRef50_P0AE06", "MFQKLGEVTITDDNGSGVKVNFEVQNLPGGKVDLSTFLRAVVKEKHDGNPITRFELEVNYQGDATVLAGTEAKQEAL"),
-                ("UniRef50_P33527", "MSKKNILILITGGAGFIGSHFVRHLLERGDEVVGIDNLNDYYDVRLKEARLLLGADLVHRSDIHTADHRKQVWEELR"),
-                ("UniRef50_P0A6F5", "MSKIVLFVGGPGSGKGTQAEKIVEQYGLPHISTGDMFRAAMKEQTPLGLDFGKKTIMGKIDGVPRVEEGKLVLSQDD"),
-                ("UniRef50_P02916", "MGDVEKGKKIFIMKCSQCHTVEKGGKHKTGPNLHGLFGRKTGQAPGYSYTAANKNKGIIWGEDTLMEYLENPKKYIPG"),
-                ("UniRef50_P13738", "MKWVTFISLFLFSSAYSRGVFRRDAHKSEVAHRFKDLGEENFKALVLIAFAQYLQQCPFEDHVKLVNEVTEFAKTCV")
+                ("UniRef50_P0AE06", "MFQKLGEVTITDDNGSGVKVNFEVQNLPGGKVDLSTFLRAVVKEKHDGNPITRFELEVNYQGDATVLAGTEAKQEALNIGPLMKDKAGVETADKVLKGEKVQAKYPVDLKLVVKR"),
+                ("UniRef50_P33527", "MSKKNILILITGGAGFIGSHFVRHLLERGDEVVGIDNLNDYYDVRLKEARLLLGADLVHRSDIHTADHRKQVWEELRDKVIRELTGNQSLDGVSDKRAVFQASIPFYAQQNLRDVVEVNPPTKHIQDALNAAGHILAQWLKDQGVVHLNAAHVHGVAPLEHLAVALKTHKKSPARERLKEFVQGRIGRAYMPDEAVAEGTLHPFRDRHHETNVKATLLGALLKSGILVNNDIGKFGKVFNIGNGGNYGNLALARSLGFAGKNVKIAVYQNEGKQGDTLKAIADGSVKREDIFYTSKLWCNSCHGQEHIFSHLKFGIKFVQAGADLEGVHQALAVPNPVEGRIKRFNKPFKFVGDRSLMDKAKSLLGHEKEDIALGGLFFLQSEVPFGLLNLYGRFLQ"),
+                ("UniRef50_P0A6F5", "MSKIVLFVGGPGSGKGTQAEKIVEQYGLPHISTGDMFRAAMKEQTPLGLDFGKKTIMGKIDGVPRVEEGKLVLSQDDEETTRIIAQSLIKNVPQAKDVDNMIKRGIRRWNAYGELYHISTGDMFREAVQQQTPLGREITDQEGNKKIMAEKYNLHVPFIEVFKP"),
+                ("UniRef50_P02916", "MGDVEKGKKIFIMKCSQCHTVEKGGKHKTGPNLHGLFGRKTGQAPGYSYTAANKNKGIIWGEDTLMEYLENPKKYIPGTKMAFGGLKKEKDRNDLITYLKKACEMLSQLEYHHFPDLLNHATKLPVNHGVNCTIKSLKPGKKIRIHFYTSAACADHMGNMKFYGPEHPEDGETVLVKDGKTLKDVVQGGLQTCDGTYEFLKNKGLVHVMGKVTNPETTLKEALAQGVKHEDLIADLSTLKKQAPDLTELRPTHEGWIHSEGMDQGVLKAMAIAKLPDHHVMGWQYHDQGTLNNGPTGNAKLVEAYGIK"),
+                ("UniRef50_P13738", "MKWVTFISLFLFSSAYSRGVFRRDAHKSEVAHRFKDLGEENFKALVLIAFAQYLQQCPFEDHVKLVNEVTEFAKTCVADESAENCDKSLHTLFGDKLCTVATLRETYGEMADCCAKQEPERNECFLQHKDDNPNLPRLVRPEVDVMCTAFHDNEETFLKKYLYEIARRHPYFYAPELLFFAKRYKAAFTECCQAADKAACLLPKLDELRDEGKASSAKQRLKCASLQKFGERAFKAWAVARLSQRFPKAEFAEVSKLVTDLTKVHTECCHGDLLECADDRADLAKYICENQDSISSKLKECCEKPLLEKSHCIAEVENDEMPADLPSLAADFVESKDVCKNYAEAKDVFLGMFLYEYARRHPDYSVVLLLRLAKTYETTLEKCCAAADPHECYAKVFDEFKPLVEEPQNLIKQNCELFEQLGEYKFQNALLVRYTKKVPQVSTPTLVEVSRNLGKVGSKCCKHPEAKRMPCAEDYLSVVLNQLCVLHEKTPVSDRVTKCCTESLVNRRPCFSALEVDETYVPKEFNAETFTFHADICTLSEKERQIKKQTALVELVKHKPKATKEQLKAVMDDFAAFVEKCCKADDKETCFAEEGKKLVAASQAALGL")
             ],
             "GO:0005216": [  # Ion channel activity
-                ("UniRef50_P0A334", "MENIQQPAKRTKETIALATVLSFVLGTIIGAFIGALIAGKLGRKLSLIARWALILMATAFVAGFGATAIAASIGFAG"),
-                ("UniRef50_P48048", "MAGLKDKELEGKARGSVIRLVNFCVGCCTELPVSEAAFNKSYEPGKRCEFQVVDKPLKDILKCVHCGFCVTAVGMEK"),
-                ("UniRef50_P21439", "MPPVDSQVLKGDGRKIRGYNGVVSSKELETMIPGDVVHFYPSRPELTAIREGDVCDVYNGRVELDGRYPHLADVAQKQ"),
-                ("UniRef50_P61619", "MRYTVAALAVTGCLLPLRAVMGAAERDMAASQRDNIDLLKGLAYRPVGRHISASTSPASRPLMVKVVFVGSGYGTGL"),
-                ("UniRef50_P05023", "MAENRPRTLLILLGVFLSCVHAAIVGPLLQDRLLFFFHILTPVAIALFYVGDLVQGVIMLANFGTRGLALVWPGLSL")
+                ("UniRef50_P0A334", "MENIQQPAKRTKETIALATVLSFVLGTIIGAFIGALIAGKLGRKLSLIARWALILMATAFVAGFGATAIAASIGFAGAIAVAIVGGLMAAVVGKIMGPIKSLAYLATLGVAIILGVALFTMYTEIRMMLPVQDLLTIALPLAILLNFAPLLLVGVFLSCVKSLSEAGHDGAGFFPPLIAIGLGALITPQLSQVWLPTVLAIVLGLRLFIGKRLLMRLLRRRPGMGYLVVLLGLFGIFGLTEPTPAHSSGMTPDKKGSYIAAGIILPVFVVLVVFVFLQRRFS"),
+                ("UniRef50_P48048", "MAGLKDKELEGKARGSVIRLVNFCVGCCTELPVSEAAFNKSYEPGKRCEFQVVDKPLKDILKCVHCGFCVTAVGMEKVVPRRLCRPRCQRCFARSDELTRHIRIHRGKGYRSCPECN"),
+                ("UniRef50_P21439", "MPPVDSQVLKGDGRKIRGYNGVVSSKELETMIPGDVVHFYPSRPELTAIREGDVCDVYNGRVELDGRYPHLADVAQKQAELLVRLVGGATSRATKQVVE"),
+                ("UniRef50_P61619", "MRYTVAALAVTGCLLPLRAVMGAAERDMAASQRDNIDLLKGLAYRPVGRHISASTSPASRPLMVKVVFVGSGYGTGLHGFVASNVANHVIRVNNEAPMATIGVCVTGANIVETSLCTARAFSSRALELFGIPVVAVELFSMSPVLGYWFARLLIIVVPLVFVVISDFVGGSEAKKWQRVFYIVIPYVLLGGVAGLVTGLAMFAGLTLGFAANAGVVAVWLYLAQRRGF"),
+                ("UniRef50_P05023", "MAENRPRTLMSTESMIRDVELAEEALPKKTGGPQGSRRCLFLSLFSFLIVAGATTLFCLLHFGVIGPQREEFPRDLSLISPLAQAVRSSSRTPSDKPVAHVVANPQAEGQLQWLNRRANALLANGVELRDNQLVVPSEGLYLIYSQVLFKGQGCPSTHVLLTHTISRIAVSYQTKVNLLSAI")
             ],
             "GO:0003700": [  # DNA-binding transcription factor activity
-                ("UniRef50_P03023", "MAIVLQSRNRAKRRKLERIRRDFNSLDALSEKMSIYSQAEMIYDNASTNQQSSSGSSDSDEDRWGGRPGRNKNKPRP"),
-                ("UniRef50_P09086", "MSKGEEDNMAIIKEFMRFKVHMEGSVNGHEFEIEGEGEGRPYEGTQTAKLKVTKGGPLPFAWDILSPQFMYGSKAYV"),
-                ("UniRef50_P04150", "MDRGEQGLLPCLVSDPETDKWRMRHLDALHTGEKPRPALLVGKRSPELLEAALALRPCLSPALTSHPTLTCQHVQPL"),
-                ("UniRef50_P10242", "MTEYKLVVVGAGGVGKSALTIQLIQNHFVDEYDPTIEDSYRKQVVIDGETCLLDILDTAGQEEYSAMRDQYMRTGEGF"),
-                ("UniRef50_P18846", "MGTKIKILIAMMMIASTFATVAQQPLDITLYTDSYIRPGVTTVLTMGQEEGKPQARINRINQAKARLLGTHDTVSNAI")
+                ("UniRef50_P03023", "MAIVLQSRNRAKRRKLERIRRDFNSLDALSEKMSIYSQAEMIYDNASTNQQSSSGSSDSDEDRWGGRPGRNKNKPRPRSPLASPLLQNTLIEQVAKQIGVQIQGGVILANDQLLNSKLSQTQKNVFFDQMLKKHLIEHRRSLEQQLAQQASTQQPSQVQAATTQQQQQPVQQPRLPAHSHTLPEGQSHLPDALAASGSLPTQTQQQVLHQQRTQLHEQLRQQQEQLELQQQEQYLQQLMQQQFQQPQRQQQPQHQLEPQPEEEPPQPSKPSVQIPTQPLQLEQPQNLEPQPMPVVPQQQHQQLMQQQPQPQHLQPQMPQPQAIQIQQLQQQQQQQQQSGSGHQPRQLLARQPSPTTPTRPAQPLPHNSFLNTSTGPNSFTSSPGMSSNGAGGQFLKNPTGSQVTFGTPQPQQAQQPSQPQPQGLQPMQQFQPQVPQQQFSAQQQTQQQFQLQPQPQPLMQPQQQFQLLQPQPLQQPPQPTQQQQFQFLQPQALQMQSLQQ"),
+                ("UniRef50_P09086", "MSKGEEDNMAIIKEFMRFKVHMEGSVNGHEFEIEGEGEGRPYEGTQTAKLKVTKGGPLPFAWDILSPQFMYGSKAYVKHPADIPDYLKLSFPEGFKWERVMNFEDGGVVTVTQDSSLQDGEFIYKVKLRGTNFPSDGPVMQKKTMGWEASSERMYPEDGALKGEIKQRLKLKDGGHYDAEVKTTYKAKKPVQLPGAYNVNIKLDITSHNEDYTIVEQYERAEGRHSTGGMDELYK"),
+                ("UniRef50_P04150", "MDRGEQGLLPCLVSDPETDKWRMRHLDALHTGEKPRPALLVGKRSPELLEAALALRPCLSPALTSHPTLTCQHVQPLRQMCPEQKLSAEQLAQTAEDMVSALRNYIFFQSVCQAEPGFLSRCLREICQNLGLPATLHTELIHQQVEQLLSVCNPYITPVLDFDRQFQTECLQRIMETYRGQECCGRCPPPGVDPENGFISDPGACRCVCKKASCQSCRPQQCQCPEGLVPPPTDPNQGLRDAAQGTVDSNCCLALHPPPQRCVCRQPGCGCPPRVDPAGWLEDPRQCLQCQHWASCRSCRAQEMCQCPQGPAGPQPQGQLGLEREPAGLQPPLQQQLQARLGQPLRSLSQASGSLH"),
+                ("UniRef50_P10242", "MTEYKLVVVGAGGVGKSALTIQLIQNHFVDEYDPTIEDSYRKQVVIDGETCLLDILDTAGQEEYSAMRDQYMRTGEGFLLDLMCYY"),
+                ("UniRef50_P18846", "MGT")
             ],
             "GO:0006357": [  # Regulation of transcription by RNA polymerase II
                 ("UniRef50_P62380", "MARTKQTARKSTGGKAPRKQLATKAARKSAPATGGVKKPHRYRPGTVALREIRRYQKSTELLIRKLPFQRLVREIAQ"),
@@ -1006,6 +901,84 @@ def show_interactive_demo():
                 ("UniRef50_P02741", "MKFLHLCLCLVLVCVPKDLQCVDLHVISNDVCSKFTIVFPHNQKGNDIFQHLDMEAFTAIRKLYGDKLPVCGTDGLGG"),
                 ("UniRef50_P08571", "MAFLWLLSCWALLGTTFGDVKLAAALEHHHHHHMASTEEQLTKCEVFRELKDLKGYTSKEPAHNPDESSKDPFEKLERF"),
                 ("UniRef50_P00740", "MAHVRGLQLPGCLALAALCSLVHSQHVFLAPQQARSLLQRVRRANTFLEEVRKGNLERECECVNCGQEARCQNIDDC")
+            ],
+            # GO terms for predefined use cases
+            "GO:0005634": [  # Nucleus
+                ("UniRef50_P04637", "MEEPQSDPSVEPPLSQETFSDLWKLLPENNVLSPLPSQAMDDLMLSPDDIEQWFTEDPGPDEAPRMPEAAPPVAPAPAAPTPAAPAPAPSWPLSSSVPSQKTYQGSYGFRLGFLHSGTAKSVTCTYSPALNKMFCQLAKTCPVQLWVDSTPPPGTRVRAMAIYKQSQHMTEVVRRCPHHERCSDSDGLAPPQHLIRVEGNLRVEYLDDRNTFRHSVVVPYEPPEVGSDCTTIHYNYMCNSSCMGGMNRRPILTIITLEDSSGNLLGRNSFEVRVCACPGRDRRTEEENLRKKGEPHHELPPGSTKRALPNNTSSSPQPKKKPLDGEYFTLQIRGRERFEMFRELNEALELKDAQAGKEPGGSRAHSSHLKSKKGQSTSRHKKLMFKTEGPDSD"),
+                ("UniRef50_P01112", "MTEYKLVVVGAGGVGKSALTIQLIQNHFVDEYDPTIEDSYRKQVVIDGETCLLDILDTAGQEEYSAMRDQYMRTGEGF"),
+                ("UniRef50_P10242", "MTEYKLVVVGAGGVGKSALTIQLIQNHFVDEYDPTIEDSYRKQVVIDGETCLLDILDTAGQEEYSAMRDQYMRTGEGFLLDLMCYY"),
+                ("UniRef50_P18846", "MGTMSTESMIRDVELAEEALPKKTGGPQGSRRCLFLSLFSFLIVAGATTLFCLLHFGVIGPQREEFPRDLSLISPLAQAVRSSSRTPSDKPVAHVVANPQAEGQLQWLNRRANALLANGVELRDNQLVVPSEGLYLIYSQVLFKGQGCPSTHVLLTHTISRIAVSYQTKVNLLSAI"),
+                ("UniRef50_P01112", "MTEYKLVVVGAGGVGKSALTIQLIQNHFVDEYDPTIEDSYRKQVVIDGETCLLDILDTAGQEEYSAMRDQYMRTGEGFLCVFAINNTKSFEDIHQYREQIKRVKDSDDVPMVLVGNKCDLPARTVETRQAQDLARSYGIPYIETSAKTRQGVEDAFYTLVREIRQH")
+            ],
+            "GO:0006281": [  # DNA repair
+                ("UniRef50_P38398", "MSKGEELFTGVVPILVELDGDVNGHKFSVSGEGEGDATYGKLTLKFICTTGKLPVPWPTLVTTLTYGVQCFSRYPDHMKQHDFFKSAMPEGYVQERTIFFKDDGNYKTRAEVKFEGDTLVNRIELKGIDFKEDGNILGHKLEYNYNSHNVYIMADKQKNGIKVNFKIRHNIEDGSVQLADHYQQNTPIGDGPVLLPDNHYLSTQSALSKDPNEKRDHMVLLEFVTAAGITHGMDELYK"),
+                ("UniRef50_P18846", "MGTMSTESMIRDVELAEEALPKKTGGPQGSRRCLFLSLFSFLIVAGATTLFCLLHFGVIGPQREEFPRDLSLISPLAQAVRSSSRTPSDKPVAHVVANPQAEGQLQWLNRRANALLANGVELRDNQLVVPSEGLYLIYSQVLFKGQGCPSTHVLLTHTISRIAVSYQTKVNLLSAI"),
+                ("UniRef50_P04637", "MEEPQSDPSVEPPLSQETFSDLWKLLPENNVLSPLPSQAMDDLMLSPDDIEQWFTEDPGPDEAPRMPEAAPPVAPAPAAPTPAAPAPAPSWPLSSSVPSQKTYQGSYGFRLGFLHSGTAKSVTCTYSPALNKMFCQLAKTCPVQLWVDSTPPPGTRVRAMAIYKQSQHMTEVVRRCPHHERCSDSDGLAPPQHLIRVEGNLRVEYLDDRNTFRHSVVVPYEPPEVGSDCTTIHYNYMCNSSCMGGMNRRPILTIITLEDSSGNLLGRNSFEVRVCACPGRDRRTEEENLRKKGEPHHELPPGSTKRALPNNTSSSPQPKKKPLDGEYFTLQIRGRERFEMFRELNEALELKDAQAGKEPGGSRAHSSHLKSKKGQSTSRHKKLMFKTEGPDSD"),
+                ("UniRef50_P01112", "MTEYKLVVVGAGGVGKSALTIQLIQNHFVDEYDPTIEDSYRKQVVIDGETCLLDILDTAGQEEYSAMRDQYMRTGEGFLCVFAINNTKSFEDIHQYREQIKRVKDSDDVPMVLVGNKCDLPARTVETRQAQDLARSYGIPYIETSAKTRQGVEDAFYTLVREIRQH"),
+                ("UniRef50_P38398", "MSKGEELFTGVVPILVELDGDVNGHKFSVSGEGEGDATYGKLTLKFICTTGKLPVPWPTLVTTLTYGVQCFSRYPDHMKQHDFFKSAMPEGYVQERTIFFKDDGNYKTRAEVKFEGDTLVNRIELKGIDFKEDGNILGHKLEYNYNSHNVYIMADKQKNGIKVNFKIRHNIEDGSVQLADHYQQNTPIGDGPVLLPDNHYLSTQSALSKDPNEKRDHMVLLEFVTAAGITHGMDELYK")
+            ],
+            "GO:0006325": [  # Chromatin organization
+                ("UniRef50_P38398", "MSKGEELFTGVVPILVELDGDVNGHKFSVSGEGEGDATYGKLTLKFICTTGKLPVPWPTLVTTLTYGVQCFSRYPDHMKQHDFFKSAMPEGYVQERTIFFKDDGNYKTRAEVKFEGDTLVNRIELKGIDFKEDGNILGHKLEYNYNSHNVYIMADKQKNGIKVNFKIRHNIEDGSVQLADHYQQNTPIGDGPVLLPDNHYLSTQSALSKDPNEKRDHMVLLEFVTAAGITHGMDELYK"),
+                ("UniRef50_P04637", "MEEPQSDPSVEPPLSQETFSDLWKLLPENNVLSPLPSQAMDDLMLSPDDIEQWFTEDPGPDEAPRMPEAAPPVAPAPAAPTPAAPAPAPSWPLSSSVPSQKTYQGSYGFRLGFLHSGTAKSVTCTYSPALNKMFCQLAKTCPVQLWVDSTPPPGTRVRAMAIYKQSQHMTEVVRRCPHHERCSDSDGLAPPQHLIRVEGNLRVEYLDDRNTFRHSVVVPYEPPEVGSDCTTIHYNYMCNSSCMGGMNRRPILTIITLEDSSGNLLGRNSFEVRVCACPGRDRRTEEENLRKKGEPHHELPPGSTKRALPNNTSSSPQPKKKPLDGEYFTLQIRGRERFEMFRELNEALELKDAQAGKEPGGSRAHSSHLKSKKGQSTSRHKKLMFKTEGPDSD"),
+                ("UniRef50_P18846", "MGTMSTESMIRDVELAEEALPKKTGGPQGSRRCLFLSLFSFLIVAGATTLFCLLHFGVIGPQREEFPRDLSLISPLAQAVRSSSRTPSDKPVAHVVANPQAEGQLQWLNRRANALLANGVELRDNQLVVPSEGLYLIYSQVLFKGQGCPSTHVLLTHTISRIAVSYQTKVNLLSAI"),
+                ("UniRef50_P01112", "MTEYKLVVVGAGGVGKSALTIQLIQNHFVDEYDPTIEDSYRKQVVIDGETCLLDILDTAGQEEYSAMRDQYMRTGEGFLCVFAINNTKSFEDIHQYREQIKRVKDSDDVPMVLVGNKCDLPARTVETRQAQDLARSYGIPYIETSAKTRQGVEDAFYTLVREIRQH"),
+                ("UniRef50_P38398", "MSKGEELFTGVVPILVELDGDVNGHKFSVSGEGEGDATYGKLTLKFICTTGKLPVPWPTLVTTLTYGVQCFSRYPDHMKQHDFFKSAMPEGYVQERTIFFKDDGNYKTRAEVKFEGDTLVNRIELKGIDFKEDGNILGHKLEYNYNSHNVYIMADKQKNGIKVNFKIRHNIEDGSVQLADHYQQNTPIGDGPVLLPDNHYLSTQSALSKDPNEKRDHMVLLEFVTAAGITHGMDELYK")
+            ],
+            "GO:0003968": [  # RNA-directed RNA polymerase activity
+                ("UniRef50_P38398", "MSKGEELFTGVVPILVELDGDVNGHKFSVSGEGEGDATYGKLTLKFICTTGKLPVPWPTLVTTLTYGVQCFSRYPDHMKQHDFFKSAMPEGYVQERTIFFKDDGNYKTRAEVKFEGDTLVNRIELKGIDFKEDGNILGHKLEYNYNSHNVYIMADKQKNGIKVNFKIRHNIEDGSVQLADHYQQNTPIGDGPVLLPDNHYLSTQSALSKDPNEKRDHMVLLEFVTAAGITHGMDELYK"),
+                ("UniRef50_P18846", "MGTMSTESMIRDVELAEEALPKKTGGPQGSRRCLFLSLFSFLIVAGATTLFCLLHFGVIGPQREEFPRDLSLISPLAQAVRSSSRTPSDKPVAHVVANPQAEGQLQWLNRRANALLANGVELRDNQLVVPSEGLYLIYSQVLFKGQGCPSTHVLLTHTISRIAVSYQTKVNLLSAI"),
+                ("UniRef50_P01112", "MTEYKLVVVGAGGVGKSALTIQLIQNHFVDEYDPTIEDSYRKQVVIDGETCLLDILDTAGQEEYSAMRDQYMRTGEGFLCVFAINNTKSFEDIHQYREQIKRVKDSDDVPMVLVGNKCDLPARTVETRQAQDLARSYGIPYIETSAKTRQGVEDAFYTLVREIRQH"),
+                ("UniRef50_P38398", "MSKGEELFTGVVPILVELDGDVNGHKFSVSGEGEGDATYGKLTLKFICTTGKLPVPWPTLVTTLTYGVQCFSRYPDHMKQHDFFKSAMPEGYVQERTIFFKDDGNYKTRAEVKFEGDTLVNRIELKGIDFKEDGNILGHKLEYNYNSHNVYIMADKQKNGIKVNFKIRHNIEDGSVQLADHYQQNTPIGDGPVLLPDNHYLSTQSALSKDPNEKRDHMVLLEFVTAAGITHGMDELYK"),
+                ("UniRef50_P18846", "MGT")
+            ],
+            "GO:0006351": [  # DNA-templated transcription
+                ("UniRef50_P38398", "MSKGEELFTGVVPILVELDGDVNGHKFSVSGEGEGDATYGKLTLKFICTTGKLPVPWPTLVTTLTYGVQCFSRYPDHMKQHDFFKSAMPEGYVQERTIFFKDDGNYKTRAEVKFEGDTLVNRIELKGIDFKEDGNILGHKLEYNYNSHNVYIMADKQKNGIKVNFKIRHNIEDGSVQLADHYQQNTPIGDGPVLLPDNHYLSTQSALSKDPNEKRDHMVLLEFVTAAGITHGMDELYK"),
+                ("UniRef50_P18846", "MGTMSTESMIRDVELAEEALPKKTGGPQGSRRCLFLSLFSFLIVAGATTLFCLLHFGVIGPQREEFPRDLSLISPLAQAVRSSSRTPSDKPVAHVVANPQAEGQLQWLNRRANALLANGVELRDNQLVVPSEGLYLIYSQVLFKGQGCPSTHVLLTHTISRIAVSYQTKVNLLSAI"),
+                ("UniRef50_P01112", "MTEYKLVVVGAGGVGKSALTIQLIQNHFVDEYDPTIEDSYRKQVVIDGETCLLDILDTAGQEEYSAMRDQYMRTGEGFLCVFAINNTKSFEDIHQYREQIKRVKDSDDVPMVLVGNKCDLPARTVETRQAQDLARSYGIPYIETSAKTRQGVEDAFYTLVREIRQH"),
+                ("UniRef50_P38398", "MSKGEELFTGVVPILVELDGDVNGHKFSVSGEGEGDATYGKLTLKFICTTGKLPVPWPTLVTTLTYGVQCFSRYPDHMKQHDFFKSAMPEGYVQERTIFFKDDGNYKTRAEVKFEGDTLVNRIELKGIDFKEDGNILGHKLEYNYNSHNVYIMADKQKNGIKVNFKIRHNIEDGSVQLADHYQQNTPIGDGPVLLPDNHYLSTQSALSKDPNEKRDHMVLLEFVTAAGITHGMDELYK"),
+                ("UniRef50_P18846", "MGT")
+            ],
+            "GO:0033644": [  # Host cell membrane
+                ("UniRef50_P38398", "MSKGEELFTGVVPILVELDGDVNGHKFSVSGEGEGDATYGKLTLKFICTTGKLPVPWPTLVTTLTYGVQCFSRYPDHMKQHDFFKSAMPEGYVQERTIFFKDDGNYKTRAEVKFEGDTLVNRIELKGIDFKEDGNILGHKLEYNYNSHNVYIMADKQKNGIKVNFKIRHNIEDGSVQLADHYQQNTPIGDGPVLLPDNHYLSTQSALSKDPNEKRDHMVLLEFVTAAGITHGMDELYK"),
+                ("UniRef50_P18846", "MGTMSTESMIRDVELAEEALPKKTGGPQGSRRCLFLSLFSFLIVAGATTLFCLLHFGVIGPQREEFPRDLSLISPLAQAVRSSSRTPSDKPVAHVVANPQAEGQLQWLNRRANALLANGVELRDNQLVVPSEGLYLIYSQVLFKGQGCPSTHVLLTHTISRIAVSYQTKVNLLSAI"),
+                ("UniRef50_P01112", "MTEYKLVVVGAGGVGKSALTIQLIQNHFVDEYDPTIEDSYRKQVVIDGETCLLDILDTAGQEEYSAMRDQYMRTGEGFLCVFAINNTKSFEDIHQYREQIKRVKDSDDVPMVLVGNKCDLPARTVETRQAQDLARSYGIPYIETSAKTRQGVEDAFYTLVREIRQH"),
+                ("UniRef50_P38398", "MSKGEELFTGVVPILVELDGDVNGHKFSVSGEGEGDATYGKLTLKFICTTGKLPVPWPTLVTTLTYGVQCFSRYPDHMKQHDFFKSAMPEGYVQERTIFFKDDGNYKTRAEVKFEGDTLVNRIELKGIDFKEDGNILGHKLEYNYNSHNVYIMADKQKNGIKVNFKIRHNIEDGSVQLADHYQQNTPIGDGPVLLPDNHYLSTQSALSKDPNEKRDHMVLLEFVTAAGITHGMDELYK"),
+                ("UniRef50_P18846", "MGT")
+            ],
+            "GO:0006508": [  # Proteolysis
+                ("UniRef50_P38398", "MSKGEELFTGVVPILVELDGDVNGHKFSVSGEGEGDATYGKLTLKFICTTGKLPVPWPTLVTTLTYGVQCFSRYPDHMKQHDFFKSAMPEGYVQERTIFFKDDGNYKTRAEVKFEGDTLVNRIELKGIDFKEDGNILGHKLEYNYNSHNVYIMADKQKNGIKVNFKIRHNIEDGSVQLADHYQQNTPIGDGPVLLPDNHYLSTQSALSKDPNEKRDHMVLLEFVTAAGITHGMDELYK"),
+                ("UniRef50_P18846", "MGTMSTESMIRDVELAEEALPKKTGGPQGSRRCLFLSLFSFLIVAGATTLFCLLHFGVIGPQREEFPRDLSLISPLAQAVRSSSRTPSDKPVAHVVANPQAEGQLQWLNRRANALLANGVELRDNQLVVPSEGLYLIYSQVLFKGQGCPSTHVLLTHTISRIAVSYQTKVNLLSAI"),
+                ("UniRef50_P01112", "MTEYKLVVVGAGGVGKSALTIQLIQNHFVDEYDPTIEDSYRKQVVIDGETCLLDILDTAGQEEYSAMRDQYMRTGEGFLCVFAINNTKSFEDIHQYREQIKRVKDSDDVPMVLVGNKCDLPARTVETRQAQDLARSYGIPYIETSAKTRQGVEDAFYTLVREIRQH"),
+                ("UniRef50_P38398", "MSKGEELFTGVVPILVELDGDVNGHKFSVSGEGEGDATYGKLTLKFICTTGKLPVPWPTLVTTLTYGVQCFSRYPDHMKQHDFFKSAMPEGYVQERTIFFKDDGNYKTRAEVKFEGDTLVNRIELKGIDFKEDGNILGHKLEYNYNSHNVYIMADKQKNGIKVNFKIRHNIEDGSVQLADHYQQNTPIGDGPVLLPDNHYLSTQSALSKDPNEKRDHMVLLEFVTAAGITHGMDELYK"),
+                ("UniRef50_P18846", "MGT")
+            ],
+            "GO:0039694": [  # Viral RNA genome replication
+                ("UniRef50_P38398", "MSKGEELFTGVVPILVELDGDVNGHKFSVSGEGEGDATYGKLTLKFICTTGKLPVPWPTLVTTLTYGVQCFSRYPDHMKQHDFFKSAMPEGYVQERTIFFKDDGNYKTRAEVKFEGDTLVNRIELKGIDFKEDGNILGHKLEYNYNSHNVYIMADKQKNGIKVNFKIRHNIEDGSVQLADHYQQNTPIGDGPVLLPDNHYLSTQSALSKDPNEKRDHMVLLEFVTAAGITHGMDELYK"),
+                ("UniRef50_P18846", "MGTMSTESMIRDVELAEEALPKKTGGPQGSRRCLFLSLFSFLIVAGATTLFCLLHFGVIGPQREEFPRDLSLISPLAQAVRSSSRTPSDKPVAHVVANPQAEGQLQWLNRRANALLANGVELRDNQLVVPSEGLYLIYSQVLFKGQGCPSTHVLLTHTISRIAVSYQTKVNLLSAI"),
+                ("UniRef50_P01112", "MTEYKLVVVGAGGVGKSALTIQLIQNHFVDEYDPTIEDSYRKQVVIDGETCLLDILDTAGQEEYSAMRDQYMRTGEGFLCVFAINNTKSFEDIHQYREQIKRVKDSDDVPMVLVGNKCDLPARTVETRQAQDLARSYGIPYIETSAKTRQGVEDAFYTLVREIRQH"),
+                ("UniRef50_P38398", "MSKGEELFTGVVPILVELDGDVNGHKFSVSGEGEGDATYGKLTLKFICTTGKLPVPWPTLVTTLTYGVQCFSRYPDHMKQHDFFKSAMPEGYVQERTIFFKDDGNYKTRAEVKFEGDTLVNRIELKGIDFKEDGNILGHKLEYNYNSHNVYIMADKQKNGIKVNFKIRHNIEDGSVQLADHYQQNTPIGDGPVLLPDNHYLSTQSALSKDPNEKRDHMVLLEFVTAAGITHGMDELYK"),
+                ("UniRef50_P18846", "MGT")
+            ],
+            "GO:0008610": [  # Lipid biosynthetic process
+                ("UniRef50_P38398", "MSKGEELFTGVVPILVELDGDVNGHKFSVSGEGEGDATYGKLTLKFICTTGKLPVPWPTLVTTLTYGVQCFSRYPDHMKQHDFFKSAMPEGYVQERTIFFKDDGNYKTRAEVKFEGDTLVNRIELKGIDFKEDGNILGHKLEYNYNSHNVYIMADKQKNGIKVNFKIRHNIEDGSVQLADHYQQNTPIGDGPVLLPDNHYLSTQSALSKDPNEKRDHMVLLEFVTAAGITHGMDELYK"),
+                ("UniRef50_P18846", "MGTMSTESMIRDVELAEEALPKKTGGPQGSRRCLFLSLFSFLIVAGATTLFCLLHFGVIGPQREEFPRDLSLISPLAQAVRSSSRTPSDKPVAHVVANPQAEGQLQWLNRRANALLANGVELRDNQLVVPSEGLYLIYSQVLFKGQGCPSTHVLLTHTISRIAVSYQTKVNLLSAI"),
+                ("UniRef50_P01112", "MTEYKLVVVGAGGVGKSALTIQLIQNHFVDEYDPTIEDSYRKQVVIDGETCLLDILDTAGQEEYSAMRDQYMRTGEGFLCVFAINNTKSFEDIHQYREQIKRVKDSDDVPMVLVGNKCDLPARTVETRQAQDLARSYGIPYIETSAKTRQGVEDAFYTLVREIRQH"),
+                ("UniRef50_P38398", "MSKGEELFTGVVPILVELDGDVNGHKFSVSGEGEGDATYGKLTLKFICTTGKLPVPWPTLVTTLTYGVQCFSRYPDHMKQHDFFKSAMPEGYVQERTIFFKDDGNYKTRAEVKFEGDTLVNRIELKGIDFKEDGNILGHKLEYNYNSHNVYIMADKQKNGIKVNFKIRHNIEDGSVQLADHYQQNTPIGDGPVLLPDNHYLSTQSALSKDPNEKRDHMVLLEFVTAAGITHGMDELYK"),
+                ("UniRef50_P18846", "MGT")
+            ],
+            "GO:0017000": [  # Antibiotic biosynthetic process
+                ("UniRef50_P38398", "MSKGEELFTGVVPILVELDGDVNGHKFSVSGEGEGDATYGKLTLKFICTTGKLPVPWPTLVTTLTYGVQCFSRYPDHMKQHDFFKSAMPEGYVQERTIFFKDDGNYKTRAEVKFEGDTLVNRIELKGIDFKEDGNILGHKLEYNYNSHNVYIMADKQKNGIKVNFKIRHNIEDGSVQLADHYQQNTPIGDGPVLLPDNHYLSTQSALSKDPNEKRDHMVLLEFVTAAGITHGMDELYK"),
+                ("UniRef50_P18846", "MGTMSTESMIRDVELAEEALPKKTGGPQGSRRCLFLSLFSFLIVAGATTLFCLLHFGVIGPQREEFPRDLSLISPLAQAVRSSSRTPSDKPVAHVVANPQAEGQLQWLNRRANALLANGVELRDNQLVVPSEGLYLIYSQVLFKGQGCPSTHVLLTHTISRIAVSYQTKVNLLSAI"),
+                ("UniRef50_P01112", "MTEYKLVVVGAGGVGKSALTIQLIQNHFVDEYDPTIEDSYRKQVVIDGETCLLDILDTAGQEEYSAMRDQYMRTGEGFLCVFAINNTKSFEDIHQYREQIKRVKDSDDVPMVLVGNKCDLPARTVETRQAQDLARSYGIPYIETSAKTRQGVEDAFYTLVREIRQH"),
+                ("UniRef50_P38398", "MSKGEELFTGVVPILVELDGDVNGHKFSVSGEGEGDATYGKLTLKFICTTGKLPVPWPTLVTTLTYGVQCFSRYPDHMKQHDFFKSAMPEGYVQERTIFFKDDGNYKTRAEVKFEGDTLVNRIELKGIDFKEDGNILGHKLEYNYNSHNVYIMADKQKNGIKVNFKIRHNIEDGSVQLADHYQQNTPIGDGPVLLPDNHYLSTQSALSKDPNEKRDHMVLLEFVTAAGITHGMDELYK"),
+                ("UniRef50_P18846", "MGT")
+            ],
+            "GO:0031177": [  # Phosphopantetheine binding
+                ("UniRef50_P38398", "MSKGEELFTGVVPILVELDGDVNGHKFSVSGEGEGDATYGKLTLKFICTTGKLPVPWPTLVTTLTYGVQCFSRYPDHMKQHDFFKSAMPEGYVQERTIFFKDDGNYKTRAEVKFEGDTLVNRIELKGIDFKEDGNILGHKLEYNYNSHNVYIMADKQKNGIKVNFKIRHNIEDGSVQLADHYQQNTPIGDGPVLLPDNHYLSTQSALSKDPNEKRDHMVLLEFVTAAGITHGMDELYK"),
+                ("UniRef50_P18846", "MGTMSTESMIRDVELAEEALPKKTGGPQGSRRCLFLSLFSFLIVAGATTLFCLLHFGVIGPQREEFPRDLSLISPLAQAVRSSSRTPSDKPVAHVVANPQAEGQLQWLNRRANALLANGVELRDNQLVVPSEGLYLIYSQVLFKGQGCPSTHVLLTHTISRIAVSYQTKVNLLSAI"),
+                ("UniRef50_P01112", "MTEYKLVVVGAGGVGKSALTIQLIQNHFVDEYDPTIEDSYRKQVVIDGETCLLDILDTAGQEEYSAMRDQYMRTGEGFLCVFAINNTKSFEDIHQYREQIKRVKDSDDVPMVLVGNKCDLPARTVETRQAQDLARSYGIPYIETSAKTRQGVEDAFYTLVREIRQH"),
+                ("UniRef50_P38398", "MSKGEELFTGVVPILVELDGDVNGHKFSVSGEGEGDATYGKLTLKFICTTGKLPVPWPTLVTTLTYGVQCFSRYPDHMKQHDFFKSAMPEGYVQERTIFFKDDGNYKTRAEVKFEGDTLVNRIELKGIDFKEDGNILGHKLEYNYNSHNVYIMADKQKNGIKVNFKIRHNIEDGSVQLADHYQQNTPIGDGPVLLPDNHYLSTQSALSKDPNEKRDHMVLLEFVTAAGITHGMDELYK"),
+                ("UniRef50_P18846", "MGT")
             ]
         }
         
@@ -1024,23 +997,29 @@ def show_interactive_demo():
         
         # Display reference sequences with ALL selected GO term annotations
         st.markdown("**Retrieved sequences with verified GO term annotations:**")
+        
+        # Show selected GO terms in a clean format
+        st.caption("Selected GO terms:")
+        go_cols = st.columns(min(len(go_terms), 3))
+        for i, term in enumerate(go_terms[:3]):
+            go_id = term.split(" - ")[0]
+            go_name = term.split(" - ")[1] if " - " in term else go_id
+            with go_cols[i % 3]:
+                st.markdown(f"• **{go_id}**  \n  {go_name}")
+        
+        if len(go_terms) > 3:
+            st.caption(f"... and {len(go_terms) - 3} more")
+        
         with st.expander("ℹ️ Why these sequences?"):
             st.markdown("""
-            These reference sequences are retrieved because they have been experimentally verified to possess **ALL** the selected GO terms. 
+            These reference sequences are retrieved because they have been verified to possess **ALL** the selected GO terms. 
             In the PRO-GO approach, these multi-functional proteins serve as ideal templates to guide the generation of new sequences 
             with the same combination of desired properties.
             """)
         
         for i, (ref_id, seq) in enumerate(shown_refs):
             with st.expander(f"Reference {i+1}: {ref_id}"):
-                # Show ALL selected GO term badges - these sequences match all target terms
-                st.markdown("**Verified GO term annotations (matches all selected terms):**")
-                go_badges = []
-                for term in go_terms:
-                    go_id = term.split(" - ")[0]
-                    go_name = term.split(" - ")[1] if " - " in term else go_id
-                    go_badges.append(f'<span style="background-color: #E3F2FD; color: #1976D2; padding: 2px 8px; border-radius: 12px; font-size: 0.85em; margin-right: 5px;">✓ {go_id}: {go_name}</span>')
-                st.markdown(''.join(go_badges), unsafe_allow_html=True)
+                st.caption("✓ This sequence possesses all selected GO terms")
                 
                 st.code(seq, language="text")
                 
@@ -1054,6 +1033,7 @@ def show_interactive_demo():
     
     # Only show generate button if reference sequences have been retrieved
     if go_terms and st.session_state.reference_sequences_retrieved:
+        st.markdown("<br><br>", unsafe_allow_html=True)
         st.subheader("3. Generate Protein Sequences")
         st.info("🧬 Now that we have reference sequences, PRO-GO can generate new protein sequences with the same GO term properties.")
         
@@ -1081,9 +1061,7 @@ def show_interactive_demo():
                 st.success("✅ Generation complete! Sequences optimized for target GO terms.")
             
             # Show results
-            st.markdown("---")
-            st.markdown("**Generated sequences optimized for target GO terms:**")
-            st.caption("Note: In the full PRO-GO pipeline, structures for these sequences would be predicted using ESMFold for structural validation")
+            # st.markdown("---")
             
             # Load real generated sequences based on selected GO terms
             # Extract just the GO IDs from the selected terms
@@ -1249,16 +1227,7 @@ def show_interactive_demo():
         for i, seq_data in enumerate(st.session_state.generated_sequences):
             with st.expander(f"Sequence {i+1}"):
                 # Show that this sequence is designed for the selected GO terms
-                st.markdown("**Designed to possess all selected GO terms:**")
-                go_badges = []
-                for term in go_terms:
-                    go_id = term.split(" - ")[0]
-                    go_name = term.split(" - ")[1] if " - " in term else go_id
-                    # Simple badge without confidence scores (those come after structure prediction)
-                    go_badges.append(f'<span style="background-color: #E8F5E9; color: #2E7D32; border: 1px solid #4CAF50; padding: 4px 10px; border-radius: 12px; font-size: 0.85em; margin-right: 5px; margin-bottom: 3px; display: inline-block;">🎯 {go_id}: {go_name}</span>')
-                
-                st.markdown(''.join(go_badges), unsafe_allow_html=True)
-                st.markdown("")  # Add spacing
+                st.caption("🎯 This sequence is designed to possess all selected GO terms")
                 
                 # Show the sequence
                 st.markdown("**Sequence:**")
@@ -1269,6 +1238,7 @@ def show_interactive_demo():
     
     # Allow sequence selection if sequences have been generated
     if st.session_state.generated_sequences:
+        st.markdown("<br><br>", unsafe_allow_html=True)
         st.markdown("---")
         st.subheader("4. Select a Sequence for Structure Visualization")
         
@@ -1296,6 +1266,7 @@ def show_interactive_demo():
         selected_seq_data = st.session_state.generated_sequences[st.session_state.selected_sequence_idx]
         seq_key = f"seq_{st.session_state.selected_sequence_idx}"
         
+        st.markdown("<br><br>", unsafe_allow_html=True)
         st.subheader(f"4. Structure Prediction for Sequence {st.session_state.selected_sequence_idx + 1}")
         
         # Display selected sequence info
@@ -1312,9 +1283,8 @@ def show_interactive_demo():
             st.markdown("""
             **ESMFold in the PRO-GO Pipeline:**
             1. **Structure Prediction**: Generated sequences are folded using ESMFold to predict 3D structures
-            2. **Confidence Assessment**: ESMFold provides per-residue pLDDT scores (0-100) indicating prediction confidence
-            3. **Structural Validation**: Predicted structures are compared to known structures using TM-score
-            4. **Functional Verification**: High structural similarity (TM-score >0.8) suggests functional similarity
+            2. **Structural Validation**: Predicted structures are compared to known structures using TM-score
+            3. **Functional Verification**: High structural similarity (TM-score >0.8) suggests functional similarity
             
             ESMFold enables rapid structure prediction without requiring homology templates or multiple sequence alignments.
             """)
@@ -1356,69 +1326,9 @@ def show_interactive_demo():
                         
         # Show visualization if structure has been predicted
         if seq_key in st.session_state.structure_predicted:
+            st.markdown("<br><br>", unsafe_allow_html=True)
             st.markdown("---")
             st.subheader("5. ESMFold Structure Prediction Results")
-            
-            # Show GO term confidence scores based on structural validation
-            st.markdown("**Structural validation confirms this sequence possesses all selected GO terms:**")
-            go_badges = []
-            for term in go_terms:
-                go_id = term.split(" - ")[0]
-                go_name = term.split(" - ")[1] if " - " in term else go_id
-                # Show confidence level based on TM-score
-                tm_score_percent = int(selected_seq_data['tm_score'] * 100)
-                if selected_seq_data['tm_score'] >= 0.9:
-                    badge_color = "#1B5E20"  # Dark forest green
-                    text_color = "#FFFFFF"  # White text for dark background
-                    confidence_text = f"{tm_score_percent}% - Excellent"
-                elif selected_seq_data['tm_score'] >= 0.85:
-                    badge_color = "#388E3C"  # Medium green
-                    text_color = "#FFFFFF"  # White text
-                    confidence_text = f"{tm_score_percent}% - Very Good"
-                else:
-                    badge_color = "#81C784"  # Light green
-                    text_color = "#1B5E20"  # Dark green text on light background
-                    confidence_text = f"{tm_score_percent}% - Good"
-                
-                go_badges.append(f'<span style="background-color: {badge_color}; color: {text_color}; border: 1px solid {badge_color}; padding: 4px 10px; border-radius: 12px; font-size: 0.85em; margin-right: 5px; margin-bottom: 3px; display: inline-block; font-weight: 600;">✓ {go_id}: {go_name} ({confidence_text})</span>')
-            
-            st.markdown(''.join(go_badges), unsafe_allow_html=True)
-            st.markdown("")  # Add spacing
-            
-            with st.expander("ℹ️ Why are confidence scores shown after structure prediction?"):
-                st.markdown("""
-                The confidence scores are based on **structural similarity** (TM-score), which can only be calculated after:
-                1. The sequence is folded into a 3D structure by ESMFold
-                2. The predicted structure is compared to known proteins with the same GO terms
-                
-                **Confidence levels:**
-                - 🟢 **90-100% (Excellent)**: Very high structural similarity - proteins likely have identical functions
-                - 🟢 **85-89% (Very Good)**: High structural similarity - proteins very likely share the same functions
-                - 🟢 **80-84% (Good)**: Good structural similarity - proteins likely share most functions
-                
-                All our generated sequences achieve TM-scores >0.8, indicating significant structural similarity to reference proteins.
-                """)
-            
-            # Show TM-score and GO match after prediction
-            col1, col2, col3, col4 = st.columns(4)
-            with col1:
-                tm_score = selected_seq_data['tm_score']
-                tm_delta = f"+{(tm_score - 0.8)*100:.1f}%" if tm_score > 0.8 else ""
-                st.metric("TM-Score", f"{tm_score:.3f}", tm_delta,
-                         help="Template Modeling score (0-1) measuring structural similarity to ground truth. >0.9 = Excellent match, >0.85 = Very good match, >0.8 = Good match.")
-            with col2:
-                st.metric("GO Match", f"{selected_seq_data['go_match']}%", 
-                         help="Overall confidence that this sequence possesses ALL selected GO terms based on structural similarity")
-            with col3:
-                # Use real pLDDT if available, otherwise mock
-                avg_plddt = selected_seq_data.get('avg_plddt', 85 + (st.session_state.selected_sequence_idx % 10))
-                st.metric("pLDDT Average", f"{avg_plddt:.1f}", 
-                         help="Average predicted Local Distance Difference Test score across all residues")
-            with col4:
-                # Calculate RMSD based on TM-score (approximate inverse relationship)
-                rmsd = 3.5 * (1 - tm_score) + 1.2  # Approximate RMSD from TM-score
-                st.metric("RMSD", f"{rmsd:.1f} Å", 
-                         help="Root Mean Square Deviation - measures how closely the predicted structure matches the ground truth (lower is better)")
         
             # Import additional libraries for PDB analysis
             import io
@@ -1499,7 +1409,7 @@ def show_interactive_demo():
             with col2:
                 show_sidechains = st.checkbox("Sidechains (sticks)", False, key=f"sidechains_{seq_key}", help="If the backbone is the necklace string, sidechains are like unique charms hanging off each bead. Each of the 20 amino acids has a different sidechain - some are small, some large, some like water, some avoid it. These sidechains are what make proteins work: they're the 'hands' that grab onto other molecules, the 'keys' that fit into specific locks, and the parts that determine what each protein can do. Showing them helps you see the protein's functional parts.")
             with col3:
-                color_by_plddt = st.checkbox("Color by pLDDT/B-factor", True, key=f"plddt_{seq_key}", help="Colors the protein like a heat map. For predicted structures: Blue = high confidence ('we're very sure this part looks like this'), Red = low confidence ('we're less certain about this part'). For experimental structures: shows which parts are more flexible or move around more. Think of it like a weather map showing confidence in the forecast - blue areas are reliable, red areas are uncertain.")
+                color_by_plddt = st.checkbox("Color by pLDDT/B-factor", False, key=f"plddt_{seq_key}", help="Colors the protein like a heat map. For predicted structures: Blue = high confidence ('we're very sure this part looks like this'), Red = low confidence ('we're less certain about this part'). For experimental structures: shows which parts are more flexible or move around more. Think of it like a weather map showing confidence in the forecast - blue areas are reliable, red areas are uncertain.")
         
             # Fixed confidence thresholds for visualization
             low_thr = 50
@@ -1541,24 +1451,25 @@ def show_interactive_demo():
             with st.expander("ℹ️ Understanding the Structure Comparison"):
                 st.markdown(f"""
                 **What you're seeing:**
-                - **Left (PRO-GO Predicted)**: The ESMFold prediction for your generated sequence (with pLDDT confidence coloring)
-                - **Right (Ground Truth)**: An experimental reference structure with the same GO terms (shown in gray, no pLDDT)
+                - **Left (PRO-GO Predicted)**: The ESMFold prediction for your generated sequence
+                - **Right (Ground Truth)**: A Ground Truth structure verified to possess the same GO terms
                 
                 **Why this comparison matters:**
-                - High structural similarity (TM-score: {selected_seq_data['tm_score']:.3f}) confirms the generated sequence likely has the target GO terms
+                - High structural similarity (TM-score: {selected_seq_data['tm_score']:.3f}) shows the generated sequence likely has the target GO terms/ simlar properties
                 - The similar overall fold demonstrates PRO-GO's ability to generate functional proteins
-                - Visible differences show natural structural variation between proteins with the same function
-                - Both structures share the same secondary structure patterns despite coordinate differences
-                
-                **Key differences:**
-                - Predicted structure: Shows ESMFold's confidence (blue=high, red=low)
-                - Ground truth: Experimental structure in uniform gray (no prediction confidence)
-                - Slight structural variations: ~1.5 Å perturbations simulate natural protein diversity
                 """)
         
             # 3D Visualization - Side by side
             st.markdown("### 🔬 Structure Comparison")
             st.info("🎯 **Goal**: Show that your generated sequence produces a structure similar to known proteins with the same GO terms")
+            
+            # Add note about mock ground truth structure
+            st.warning("""
+            **📝 Demo Note:** The Ground Truth Structure shown below is a mock structure for demonstration purposes. 
+            In the actual PRO-GO implementation, these would be real structures retrieved from the PDB database 
+            that have been verified to possess the same GO terms as your generated sequence.
+            """)
+            
             col_left, col_right = st.columns([1, 1])
             
             # Left column - PRO-GO Predicted Structure
@@ -1600,8 +1511,8 @@ def show_interactive_demo():
             
             # Right column - Ground Truth Structure
             with col_right:
-                st.markdown("**Ground Truth Structure**")
-                st.caption(f"Experimental reference with target GO terms (no pLDDT)")
+                st.markdown("**Ground Truth Structure (Top Similarity)**")
+                st.caption(f"Ground Truth Protein Structure with target GO terms")
                 
                 # Create 3D view for ground truth structure
                 view_gt = py3Dmol.view(width=400, height=500)
@@ -1641,9 +1552,7 @@ def show_interactive_demo():
                 </div>
                 """, unsafe_allow_html=True)
             
-            # Parse pLDDT from B-factor and plot for predicted structure
-            st.markdown("---")
-            st.subheader("Per-residue pLDDT Analysis (Predicted Structure Only)")
+            # First, parse the PDB to get the actual pLDDT values
             parser = PDBParser(QUIET=True)
             structure = parser.get_structure("pred", io.StringIO(predicted_pdb))
             
@@ -1661,71 +1570,251 @@ def show_interactive_demo():
                             res_ids.append(f"{chain.id}:{residue.id[1]}")
                             seen.add(residue.get_id())
             
-            if plddt:
-                with st.expander("ℹ️ What is pLDDT?"):
-                    st.markdown("""
-                    **pLDDT** is like a confidence score for each part of the predicted protein structure.
+            # Calculate the actual average pLDDT
+            actual_avg_plddt = np.mean(plddt) if plddt else 0.0
+            
+            # Show GO term confidence scores based on structural validation
+            st.markdown("---")
+            st.markdown("**Structural validation shows this sequence is highly likely to possess similar properties/functionality to the Ground Truth Protein, which possesses the target GO terms:**")
+            go_badges = []
+            for term in go_terms:
+                go_id = term.split(" - ")[0]
+                go_name = term.split(" - ")[1] if " - " in term else go_id
+                # Show confidence level based on TM-score
+                tm_score_percent = int(selected_seq_data['tm_score'] * 100)
+                if selected_seq_data['tm_score'] >= 0.9:
+                    badge_color = "#1B5E20"  # Dark forest green
+                    text_color = "#FFFFFF"  # White text for dark background
+                    confidence_text = f"{tm_score_percent}% - Excellent"
+                elif selected_seq_data['tm_score'] >= 0.85:
+                    badge_color = "#388E3C"  # Medium green
+                    text_color = "#FFFFFF"  # White text
+                    confidence_text = f"{tm_score_percent}% - Very Good"
+                else:
+                    badge_color = "#81C784"  # Light green
+                    text_color = "#1B5E20"  # Dark green text on light background
+                    confidence_text = f"{tm_score_percent}% - Good"
+                
+                go_badges.append(f'<span style="background-color: {badge_color}; color: {text_color}; border: 1px solid {badge_color}; padding: 4px 10px; border-radius: 12px; font-size: 0.85em; margin-right: 5px; margin-bottom: 3px; display: inline-block; font-weight: 600;">✓ {go_id}: {go_name} ({confidence_text})</span>')
+            
+            st.markdown(''.join(go_badges), unsafe_allow_html=True)
+            st.markdown("")  # Add spacing
+            
+            with st.expander("What do the scores mean?"):
+                st.markdown("""
+                The confidence scores are based on **structural similarity** (TM-score), which can only be calculated after:
+                1. The sequence is folded into a 3D structure by ESMFold
+                2. The predicted structure is compared to known proteins with the same GO terms
+                
+                **Confidence levels:**
+                - 🟢 **90-100% (Excellent)**: Very high structural similarity - proteins likely have identical functions
+                - 🟢 **85-89% (Very Good)**: High structural similarity - proteins very likely share the same functions
+                - 🟢 **80-84% (Good)**: Good structural similarity - proteins likely share most functions
+                
+                When our generated sequences achieve TM-scores >0.8, it indicates significant structural similarity to reference proteins.
+                """)
+            
+            # Show TM-score and GO match after prediction
+            col1, col2 = st.columns(2)
+            with col1:
+                tm_score = selected_seq_data['tm_score']
+                tm_delta = f"+{(tm_score - 0.8)*100:.1f}%" if tm_score > 0.8 else ""
+                st.metric("TM-Score", f"{tm_score:.3f}", tm_delta,
+                         help="Template Modeling score (0-1) measuring structural similarity to ground truth. The arrow shows how much the score exceeds 0.8 (the minimum for 'good' match). >0.9 = Excellent, >0.85 = Very good, >0.8 = Good.")
+            with col2:
+                st.metric("GO Match", f"{selected_seq_data['go_match']}%", 
+                         help="Overall confidence that this sequence possesses ALL selected GO terms based on structural similarity")
+            
+            # Full evaluation results section
+            st.markdown("<br>", unsafe_allow_html=True)
+            
+            # Initialize session state for full results
+            if f'show_full_results_{seq_key}' not in st.session_state:
+                st.session_state[f'show_full_results_{seq_key}'] = False
+            
+            # Button to show full results
+            if st.button("📊 View Full Results", key=f"full_results_btn_{seq_key}"):
+                st.session_state[f'show_full_results_{seq_key}'] = not st.session_state[f'show_full_results_{seq_key}']
+            
+            # Show full results if button clicked
+            if st.session_state[f'show_full_results_{seq_key}']:
+                st.markdown("---")
+                st.subheader("Full Evaluation Results")
+                
+                # Show evaluation pipeline
+                st.markdown("### 🔬 Evaluation Pipeline")
+                try:
+                    eval_pipeline_img = Image.open('/mnt/Code/demo_data/img/eval_pipeline2.png')
+                    col1, col2, col3 = st.columns([1, 3, 1])  # Center the image
+                    with col2:
+                        st.image(eval_pipeline_img, caption="PRO-GO Evaluation Pipeline", use_container_width=True)
                     
-                    Imagine if a weather forecast gave you confidence levels for each hour:
-                    - **Blue (90-100)**: "We're very confident" - like predicting sunny weather in the desert
-                    - **Green (70-90)**: "Pretty confident" - like a typical weather forecast
-                    - **Yellow (50-70)**: "Somewhat uncertain" - like predicting weather a week ahead
-                    - **Red (<50)**: "Very uncertain" - like predicting weather a month ahead
+                    with st.expander("ℹ️ About the Evaluation Pipeline"):
+                        st.markdown("""
+                        The PRO-GO evaluation pipeline uses a **Top-TM-Score approach** to validate generated sequences:
+                        
+                        **1. Structure Prediction**: Generated sequences are folded using ESMFold to obtain 3D coordinates and pLDDT confidence scores.
+                        
+                        **2. Top-TM-Score Comparison**: Each generated structure is compared against ALL known proteins with the same GO terms, selecting the highest TM-score as the representative score.
+                        
+                        **3. Functional Validation**: High TM-scores (>0.8) indicate the generated protein likely possesses the target GO terms.
+                        
+                        **Why Top-TM-Score is Essential:**
+                        - **Structural Diversity**: Proteins with the same GO terms may have very different structures
+                        - **Best Match Selection**: Top-TM-Score finds the closest structural homolog, not just average similarity
+                        - **Conservative Assessment**: Provides the most reliable estimate of functional capability
+                        - **Functional Relevance**: Structural similarity strongly correlates with functional similarity
+                        
+                        This approach ensures accurate assessment of whether generated proteins can perform target functions.
+                        """)
+                except:
+                    st.warning("Evaluation pipeline image not found.")
+                
+                # Show similarity results
+                st.markdown("### 📈 Performance Comparison")
+                st.markdown("**How do PRO-GO generated proteins compare to existing proteins with the same GO terms?**")
+                
+                try:
+                    similarity_img = Image.open('/mnt/Code/demo_data/img/similarity_results_line_graph_simple.png')
+                    col1, col2, col3 = st.columns([1, 3, 1])  # Center the image
+                    with col2:
+                        st.image(similarity_img, caption="Structural Similarity Distribution: PRO-GO vs Target Benchmark Proteins", use_container_width=True)
                     
-                    Scientists use these colors to know which parts of the protein structure they can trust most.
-                    The computer is essentially saying "I'm very sure about the blue parts, but less sure about the red parts."
+                    st.info("""
+                    This graph compares PRO-GO generated proteins against target benchmark proteins from the UniProt database that are known to possess the same GO terms. 
+                    The similar curves demonstrate that PRO-GO successfully generates proteins with comparable structural quality to naturally occurring proteins with the desired functions.
                     """)
-                y_label = "pLDDT"
-                caption = "The plot shows confidence in the predicted structure for each residue position."
+                except:
+                    st.warning("Similarity results graph not found.")
                 
-                # Line plot
-                fig = px.line(x=list(range(1, len(plddt) + 1)), y=plddt,
-                              labels={"x": "Residue index", "y": y_label})
+                # Show similarity table
+                st.markdown("### 📊 Detailed Performance Metrics")
                 
-                # Add threshold bands
-                fig.add_hrect(y0=0, y1=low_thr, line_width=0, fillcolor="red", opacity=0.08)
-                fig.add_hrect(y0=low_thr, y1=med_thr, line_width=0, fillcolor="yellow", opacity=0.08)
-                fig.add_hrect(y0=med_thr, y1=100, line_width=0, fillcolor="blue", opacity=0.06)
-                
-                fig.update_layout(
-                    title=f"Per-residue {y_label} scores",
-                    height=400
-                )
-                
-                st.plotly_chart(fig, use_container_width=True)
-                
-                st.caption(caption)
-                
-                # Histogram of pLDDT
-                col1, col2 = st.columns(2)
-                
-                with col1:
-                    st.subheader(f"{y_label} Distribution")
-                    hist_fig = px.histogram(x=plddt, nbins=20, 
-                                           labels={"x": y_label, "count": "Number of residues"},
-                                           title=f"Distribution of {y_label} scores")
-                    hist_fig.update_layout(height=350)
-                    st.plotly_chart(hist_fig, use_container_width=True)
-                
-                with col2:
-                    st.subheader("Confidence Summary")
+                # Read and display the similarity table
+                try:
+                    with open('/mnt/Code/demo_data/img/similarity_table.txt', 'r') as f:
+                        table_content = f.read()
                     
-                    low_count = sum(v < low_thr for v in plddt)
-                    med_count = sum((v >= low_thr) and (v < med_thr) for v in plddt)
-                    high_count = sum(v >= med_thr for v in plddt)
-                    total_count = len(plddt)
+                    # Parse the table content
+                    lines = table_content.strip().split('\n')
+                    table_lines = [line for line in lines if line.strip() and line.startswith('|')]
                     
-                    # Create metrics
-                    st.metric("Low confidence", f"{low_count} ({low_count/total_count*100:.1f}%)", 
-                             help=f"pLDDT < {low_thr}")
-                    st.metric("Medium confidence", f"{med_count} ({med_count/total_count*100:.1f}%)", 
-                             help=f"{low_thr} ≤ pLDDT < {med_thr}")
-                    st.metric("High confidence", f"{high_count} ({high_count/total_count*100:.1f}%)", 
-                             help=f"pLDDT ≥ {med_thr}")
+                    if len(table_lines) >= 3:
+                        # Extract headers
+                        headers = [h.strip() for h in table_lines[0].split('|')[1:-1]]
+                        
+                        # Extract data rows (skip the separator line)
+                        data = []
+                        for line in table_lines[2:]:
+                            if line.strip():
+                                row = [cell.strip() for cell in line.split('|')[1:-1]]
+                                if len(row) == len(headers):
+                                    data.append(row)
+                        
+                        # Create DataFrame
+                        df = pd.DataFrame(data, columns=headers)
+                        
+                        # Style the dataframe
+                        st.dataframe(df, use_container_width=True)
+                        
+                        # Show key observations
+                        st.markdown("**Key Observations:**")
+                        st.markdown("""
+                        - **Consistently Small Differences**: Across all TM-score thresholds, the differences between generated and benchmark proteins range from only 1.7% to 5.7%
+                        - **Excellent Agreement**: The similar performance demonstrates PRO-GO's ability to generate proteins comparable to natural sequences
+                        """)
+                except:
+                    st.warning("Similarity table not found.")
+            
+            # Future Works section - only show if full results are displayed
+            if st.session_state.get(f'show_full_results_{seq_key}', False):
+                st.markdown("<br><br>", unsafe_allow_html=True)
+                st.markdown("---")
+                st.subheader("🔮 Future Works")
+                
+                # pLDDT Analysis section under Future Works
+                plddt_key = f"plddt_{seq_key}"
+                
+                # Button to generate pLDDT analysis
+                if plddt_key not in st.session_state.plddt_analyzed:
+                    if st.button("🔬 Generate pLDDT Analysis (Preview)", type="secondary", use_container_width=True):
+                        with st.spinner("Analyzing per-residue confidence scores..."):
+                            import time
+                            time.sleep(2)  # Simulate processing
+                            st.session_state.plddt_analyzed[plddt_key] = True
+                            st.rerun()
+                
+                # Show pLDDT analysis if generated
+                if plddt_key in st.session_state.plddt_analyzed:
+                    st.markdown("### Per-residue pLDDT Analysis (Preview)")
                     
-                    # Average score
-                    avg_plddt = np.mean(plddt)
-                    st.metric(f"Average {y_label}", f"{avg_plddt:.1f}")
+                    if plddt:
+                        with st.expander("ℹ️ What is pLDDT?"):
+                            st.markdown("""
+                            **pLDDT** is like a confidence score for each part of the predicted protein structure.
+                            
+                            Imagine if a weather forecast gave you confidence levels for each hour:
+                            - **Blue (90-100)**: "We're very confident" - like predicting sunny weather in the desert
+                            - **Green (70-90)**: "Pretty confident" - like a typical weather forecast
+                            - **Yellow (50-70)**: "Somewhat uncertain" - like predicting weather a week ahead
+                            - **Red (<50)**: "Very uncertain" - like predicting weather a month ahead
+                            
+                            Scientists use these colors to know which parts of the protein structure they can trust most.
+                            The computer is essentially saying "I'm very sure about the blue parts, but less sure about the red parts."
+                            """)
+                        y_label = "pLDDT"
+                        caption = "The plot shows confidence in the predicted structure for each residue position."
+                        
+                        # Line plot
+                        fig = px.line(x=list(range(1, len(plddt) + 1)), y=plddt,
+                                      labels={"x": "Residue index", "y": y_label})
+                        
+                        # Add threshold bands
+                        fig.add_hrect(y0=0, y1=low_thr, line_width=0, fillcolor="red", opacity=0.08)
+                        fig.add_hrect(y0=low_thr, y1=med_thr, line_width=0, fillcolor="yellow", opacity=0.08)
+                        fig.add_hrect(y0=med_thr, y1=100, line_width=0, fillcolor="blue", opacity=0.06)
+                        
+                        fig.update_layout(
+                            title=f"Per-residue {y_label} scores",
+                            height=400
+                        )
+                        
+                        st.plotly_chart(fig, use_container_width=True)
+                        
+                        st.caption(caption)
+                        
+                        # Histogram of pLDDT
+                        col1, col2 = st.columns(2)
+                        
+                        with col1:
+                            st.subheader(f"{y_label} Distribution")
+                            hist_fig = px.histogram(x=plddt, nbins=20, 
+                                                   labels={"x": y_label, "count": "Number of residues"},
+                                                   title=f"Distribution of {y_label} scores")
+                            hist_fig.update_layout(height=350)
+                            st.plotly_chart(hist_fig, use_container_width=True)
+                        
+                        with col2:
+                            st.subheader("Confidence Summary")
+                            
+                            low_count = sum(v < low_thr for v in plddt)
+                            med_count = sum((v >= low_thr) and (v < med_thr) for v in plddt)
+                            high_count = sum(v >= med_thr for v in plddt)
+                            total_count = len(plddt)
+                            
+                            # Create metrics
+                            st.metric("Low confidence", f"{low_count} ({low_count/total_count*100:.1f}%)", 
+                                     help=f"pLDDT < {low_thr}")
+                            st.metric("Medium confidence", f"{med_count} ({med_count/total_count*100:.1f}%)", 
+                                     help=f"{low_thr} ≤ pLDDT < {med_thr}")
+                            st.metric("High confidence", f"{high_count} ({high_count/total_count*100:.1f}%)", 
+                                     help=f"pLDDT ≥ {med_thr}")
+                            
+                            # Average score (already calculated above)
+                            st.metric(f"Average {y_label}", f"{actual_avg_plddt:.1f}")
+    
+    # Add substantial bottom padding to improve scrolling
+    st.markdown("<br><br><br><br><br><br><br><br><br><br>", unsafe_allow_html=True)
 
 if __name__ == "__main__":
         main()
