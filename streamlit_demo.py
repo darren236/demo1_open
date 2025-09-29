@@ -1222,7 +1222,7 @@ def show_interactive_demo():
         st.markdown("---")
         st.markdown("### ✨ Generated Protein Sequences")
         st.markdown("**Generated sequences predicted to have ALL target GO terms:**")
-        st.caption("Note: Structural validation metrics (TM-score, GO match confidence) will be shown after structure prediction")
+        st.caption("Note: Structural validation metrics (TM-score, GO term property similarity) will be shown after structure prediction")
             
         for i, seq_data in enumerate(st.session_state.generated_sequences):
             with st.expander(f"Sequence {i+1}"):
@@ -1614,7 +1614,7 @@ def show_interactive_demo():
                 When our generated sequences achieve TM-scores >0.8, it indicates significant structural similarity to reference proteins.
                 """)
             
-            # Show TM-score and GO match after prediction
+            # Show TM-score and GO term property similarity after prediction
             col1, col2 = st.columns(2)
             with col1:
                 tm_score = selected_seq_data['tm_score']
@@ -1622,7 +1622,7 @@ def show_interactive_demo():
                 st.metric("TM-Score", f"{tm_score:.3f}", tm_delta,
                          help="Template Modeling score (0-1) measuring structural similarity to ground truth. The arrow shows how much the score exceeds 0.8 (the minimum for 'good' match). >0.9 = Excellent, >0.85 = Very good, >0.8 = Good.")
             with col2:
-                st.metric("GO Match", f"{selected_seq_data['go_match']}%", 
+                st.metric("GO Term Property Similarity", f"{selected_seq_data['go_match']}%", 
                          help="Overall confidence that this sequence possesses the selected GO term properties based on structural similarity")
             
             # Full evaluation results section
