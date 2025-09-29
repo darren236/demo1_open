@@ -1462,6 +1462,14 @@ def show_interactive_demo():
             # 3D Visualization - Side by side
             st.markdown("### 🔬 Structure Comparison")
             st.info("🎯 **Goal**: Show that your generated sequence produces a structure similar to known proteins with the same GO terms")
+            
+            # Add note about mock ground truth structure
+            st.warning("""
+            **📝 Demo Note:** The Ground Truth Structure shown below is a mock structure for demonstration purposes. 
+            In the actual PRO-GO implementation, these would be real structures retrieved from the PDB database 
+            that have been verified to possess the same GO terms as your generated sequence.
+            """)
+            
             col_left, col_right = st.columns([1, 1])
             
             # Left column - PRO-GO Predicted Structure
