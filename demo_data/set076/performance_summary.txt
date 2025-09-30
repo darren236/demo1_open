@@ -1,0 +1,25 @@
+Performance Summary for set076
+========================================
+
+Top 5 sequences by TM score:
+
+1. Sequence_48
+   - Max TM Score: 0.9527
+   - Avg pLDDT: 57.31
+
+2. Sequence_77
+   - Max TM Score: 0.9522
+   - Avg pLDDT: 76.19
+
+3. Sequence_33
+   - Max TM Score: 0.9438
+   - Avg pLDDT: 75.71
+
+4. Sequence_90
+   - Max TM Score: 0.9317
+   - Avg pLDDT: 44.71
+
+5. Sequence_56
+   - Max TM Score: 0.9301
+   - Avg pLDDT: 68.35
+

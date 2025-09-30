@@ -1,0 +1,25 @@
+Performance Summary for set005
+========================================
+
+Top 5 sequences by TM score:
+
+1. Sequence_29
+   - Max TM Score: 0.8417
+   - Avg pLDDT: 82.43
+
+2. Sequence_2
+   - Max TM Score: 0.8326
+   - Avg pLDDT: 60.05
+
+3. Sequence_79
+   - Max TM Score: 0.8318
+   - Avg pLDDT: 66.43
+
+4. Sequence_98
+   - Max TM Score: 0.8273
+   - Avg pLDDT: 82.37
+
+5. Sequence_38
+   - Max TM Score: 0.8229
+   - Avg pLDDT: 73.99
+

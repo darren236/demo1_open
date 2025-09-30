@@ -1,0 +1,25 @@
+Performance Summary for set088
+========================================
+
+Top 5 sequences by TM score:
+
+1. Sequence_46
+   - Max TM Score: 0.9858
+   - Avg pLDDT: 84.35
+
+2. Sequence_71
+   - Max TM Score: 0.9806
+   - Avg pLDDT: 89.55
+
+3. Sequence_85
+   - Max TM Score: 0.9789
+   - Avg pLDDT: 87.69
+
+4. Sequence_86
+   - Max TM Score: 0.9786
+   - Avg pLDDT: 89.99
+
+5. Sequence_6
+   - Max TM Score: 0.9751
+   - Avg pLDDT: 87.57
+
