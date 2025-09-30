@@ -10,7 +10,7 @@ import plotly.graph_objects as go
 import plotly.express as px
 from pathlib import Path
 import py3Dmol
-from stmol import showmol
+# Removed stmol import - using py3Dmol directly
 import re
 import io
 import numpy as np
@@ -1507,7 +1507,7 @@ def show_interactive_demo():
                 view_pred.zoomTo()
                 
                 # Show the molecule
-                showmol(view_pred, height=500, width=400)
+                view_pred.show()
             
             # Right column - Ground Truth Structure
             with col_right:
@@ -1535,7 +1535,7 @@ def show_interactive_demo():
                 view_gt.zoomTo()
                 
                 # Show the molecule
-                showmol(view_gt, height=500, width=400)
+                view_gt.show()
             
             # Show color scale legend below both structures
             if color_by_plddt:
