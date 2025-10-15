@@ -1,0 +1,22 @@
+# Streamlit configuration for cloud deployment
+
+[server]
+# Increase file upload size for potential large PDB files
+maxUploadSize = 200
+# Enable XSRF protection
+enableXsrfProtection = true
+# Run in headless mode
+headless = true
+
+[browser]
+# Don't automatically open browser on server start
+gatherUsageStats = false
+
+[theme]
+# Optional: Customize your app's appearance
+primaryColor = "#1f77b4"
+backgroundColor = "#ffffff"
+secondaryBackgroundColor = "#f0f2f6"
+textColor = "#262730"
+font = "sans serif"
+
