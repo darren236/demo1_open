@@ -16,6 +16,14 @@ import io
 import numpy as np
 from PIL import Image
 
+# Get the base directory for relative paths (for Streamlit Cloud compatibility)
+BASE_DIR = Path(__file__).parent
+# Handle case where streamlit_demo.py is in a subdirectory or root
+if not (BASE_DIR / "demo_data").exists():
+    # Try parent directory (for deployment configs like 'demo1_open/streamlit_demo.py')
+    BASE_DIR = BASE_DIR.parent
+DATA_DIR = BASE_DIR / "demo_data"
+
 # Configure page
 st.set_page_config(
     page_title="PRO-GO: Protein Sequence Generation Demo",
@@ -138,7 +146,7 @@ def show_overview(paper_data):
     st.markdown("### 📊 PRO-GO Poster")
     
     try:
-        poster_img = Image.open('/mnt/Code/demo_data/img/progo_poster_no_header.png')
+        poster_img = Image.open(DATA_DIR / 'img' / 'progo_poster_no_header.png')
         st.image(poster_img, caption="PRO-GO: Reference-Guided Protein Sequence Generation - Project Overview & Industry Engagement", use_container_width=True)
     except:
         st.warning("PRO-GO poster not found. Please ensure 'progo_poster_no_header.png' is in the demo_data/img directory.")
@@ -250,7 +258,7 @@ def show_overview(paper_data):
     st.subheader("🔬 PRO-GO Framework")
     
     try:
-        overview_img = Image.open('/mnt/Code/demo_data/img/overview.png')
+        overview_img = Image.open(DATA_DIR / 'img' / 'overview.png')
         col1, col2, col3 = st.columns([1, 3, 1])  # Center the image
         with col2:
             st.image(overview_img, caption="PRO-GO Framework Overview", use_container_width=True)
@@ -602,7 +610,7 @@ def show_interactive_demo():
     # Load predefined GO term sets
     import pandas as pd
     try:
-        use_cases_df = pd.read_csv('/mnt/Code/demo_data/five_high_value_go_sets_with_benefits_column.csv')
+        use_cases_df = pd.read_csv(DATA_DIR / 'five_high_value_go_sets_with_benefits_column.csv')
         use_cases_df = use_cases_df.dropna(subset=['Set Name'])  # Remove empty rows
     except:
         use_cases_df = None
@@ -1085,9 +1093,9 @@ def show_interactive_demo():
                     break
             
             # Load sequences from real data if available
-            if matching_set and Path(f'/mnt/Code/demo_data/{matching_set}').exists():
-                fasta_file = f'/mnt/Code/demo_data/{matching_set}/sequences/{matching_set}_selected_sequences.fasta'
-                perf_file = f'/mnt/Code/demo_data/{matching_set}/performance_summary.txt'
+            if matching_set and (DATA_DIR / matching_set).exists():
+                fasta_file = DATA_DIR / matching_set / 'sequences' / f'{matching_set}_selected_sequences.fasta'
+                perf_file = DATA_DIR / matching_set / 'performance_summary.txt'
                 
                 
                 # Read sequences and performance data
@@ -1345,11 +1353,11 @@ def show_interactive_demo():
                 ground_truth_pdb_filename = seq_data['ground_truth_pdb']
                 
                 # Build paths to PDB files
-                predicted_path = f'/mnt/Code/demo_data/{set_name}/predicted_structures/{predicted_pdb_filename}'
-                ground_truth_path = f'/mnt/Code/demo_data/{set_name}/ground_truth_structures/{ground_truth_pdb_filename}'
+                predicted_path = DATA_DIR / set_name / 'predicted_structures' / predicted_pdb_filename
+                ground_truth_path = DATA_DIR / set_name / 'ground_truth_structures' / ground_truth_pdb_filename
                 
                 # Check if files exist
-                if Path(predicted_path).exists() and Path(ground_truth_path).exists():
+                if predicted_path.exists() and ground_truth_path.exists():
                     use_real_data = True
                     # Get ground truth structure name from filename
                     gt_structure_name = ground_truth_pdb_filename.replace('.pdb', '')
@@ -1644,7 +1652,7 @@ def show_interactive_demo():
                 # Show evaluation pipeline
                 st.markdown("### 🔬 Evaluation Pipeline")
                 try:
-                    eval_pipeline_img = Image.open('/mnt/Code/demo_data/img/eval_pipeline2.png')
+                    eval_pipeline_img = Image.open(DATA_DIR / 'img' / 'eval_pipeline2.png')
                     col1, col2, col3 = st.columns([1, 3, 1])  # Center the image
                     with col2:
                         st.image(eval_pipeline_img, caption="PRO-GO Evaluation Pipeline", use_container_width=True)
@@ -1675,7 +1683,7 @@ def show_interactive_demo():
                 st.markdown("**How do PRO-GO generated proteins compare to existing proteins with the same GO terms?**")
                 
                 try:
-                    similarity_img = Image.open('/mnt/Code/demo_data/img/similarity_results_line_graph_simple.png')
+                    similarity_img = Image.open(DATA_DIR / 'img' / 'similarity_results_line_graph_simple.png')
                     col1, col2, col3 = st.columns([1, 3, 1])  # Center the image
                     with col2:
                         st.image(similarity_img, caption="Structural Similarity Distribution: PRO-GO vs Target Benchmark Proteins", use_container_width=True)
@@ -1692,7 +1700,7 @@ def show_interactive_demo():
                 
                 # Read and display the similarity table
                 try:
-                    with open('/mnt/Code/demo_data/img/similarity_table.txt', 'r') as f:
+                    with open(DATA_DIR / 'img' / 'similarity_table.txt', 'r') as f:
                         table_content = f.read()
                     
                     # Parse the table content
